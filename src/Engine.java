@@ -5,43 +5,29 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Il motore di gioco che calcola le possibili mosse, controlla la correttezza delle mosse dei giocatori, assegna i turni, ecc.
- *
- */
+
+// Il motore di gioco che calcola le possibili mosse, controlla la correttezza delle mosse dei giocatori, assegna i turni, ecc
 public class Engine {
 
-    /**
-     * Slot player
-     */
+
     public Socket socket, socket2;
     private OutputStream out, out2;
     private final String name;
     private final String name2;
-    /**
-     * Informacja o aktualnie wykonywanej turze
-     */
-    public int tura = 1;
-    private final int planszaRozmiar = 8;
-    private final List<Byte> dozwolone1 = new ArrayList<>(20);
-    private final List<Byte> dozwolone2 = new ArrayList<>(20);
+
+    public int gira = 1;
+    private final int boardSize = 8;
+    private final List<Byte> consenti1 = new ArrayList<>(20);
+    private final List<Byte> consenti2 = new ArrayList<>(20);
     private byte[] stan;
-    private final byte[] koniec = "\r\n".getBytes();
-    //public byte[] response;
-    byte gracz, gracz2 = 1;
+    private final byte[] fine = "\r\n".getBytes();
+    byte giocatore, giocatore2 = 1;
     public boolean ended = false;
     ServerLobbyListener as;
     ServerLobbyListener bs;
 
-    /**
-     * Tworzy slinik gry
-     *
-     * @param a      Referencja do Listenera dla klienta będącego pierwszym graczem
-     * @param b      Referencja do Listenera dla klienta będącego drugim graczem
-     * @param kolor1 Kolor pionków pierwszego gracza - Color.Black zaczyna, Color.White - wykonuje ruch jako drugi
-     */
     public Engine(ServerLobbyListener a, ServerLobbyListener b, Color kolor1) {
-        System.out.println("Działa silnik");
+        System.out.println("Motore in funzione");
         this.as = a;
         this.bs = b;
         socket = a.client;
@@ -49,28 +35,28 @@ public class Engine {
         name = a.nick;
         name2 = b.nick;
         System.out.println(name + " vs " + name2);
-        if (kolor1 == Color.BLACK) gracz = 2;
+        if (kolor1 == Color.BLACK) giocatore = 2;
         else {
-            gracz = 1;
-            tura = 2;
+            giocatore = 1;
+            gira = 2;
         }
 
         try {
             out = socket.getOutputStream();
             out2 = socket2.getOutputStream();
             System.out.println("Serwer START");
-            stan = new byte[planszaRozmiar * planszaRozmiar];
+            stan = new byte[boardSize * boardSize];
             for (int i = 0; i < 50; i++)
                 stan[i] = 1;
             stan[27] = 1;
             stan[28] = 2;
             stan[35] = 2;
             stan[36] = 1;
-            byte[] message = new byte[stan.length + koniec.length + 1];
+            byte[] message = new byte[stan.length + fine.length + 1];
             message[0] = 1;
             System.arraycopy(stan, 0, message, 1, stan.length);
-            for (int i = 0; i < koniec.length; i++)
-                message[stan.length + 1 + i] = koniec[i];
+            for (int i = 0; i < fine.length; i++)
+                message[stan.length + 1 + i] = fine[i];
             out.write(message);
             out2.write(message);
             turaInfo();
@@ -92,29 +78,29 @@ public class Engine {
     public void run(byte[] response) {
         try {
             if (!ended) {
-                if (tura == 1) {
+                if (gira == 1) {
                     System.out.println("Tura pierwszego okienka");
-                    byte[] message = new byte[koniec.length + 1];
+                    byte[] message = new byte[fine.length + 1];
 
                     //else {
                     System.out.println("Są ruchy do zrobienia dla lewego:");
-                    for (Byte aByte : dozwolone1) System.out.print(aByte + " ");
+                    for (Byte aByte : consenti1) System.out.print(aByte + " ");
                     System.out.println();
                     switch (response[0]) {
                         case 0:
                             break;
                         case 4:
                             byte rzad = response[1], kolumna = response[2];
-                            if (!dozwolone1.contains((byte) (rzad * planszaRozmiar + kolumna))) {
+                            if (!consenti1.contains((byte) (rzad * boardSize + kolumna))) {
                                 message[0] = -1;
                                 out.write(message);
                                 System.out.println("Przesłano info, że tura nie dozwolona");
                                 wyslijStan();
                                 turaInfo();
                             } else {
-                                wykonajRuch(gracz, rzad, kolumna);
+                                wykonajRuch(giocatore, rzad, kolumna);
                                 wyslijStan();
-                                tura = 2;
+                                gira = 2;
                                 turaInfo();
                                 System.out.println("Wysłano stany po wyk ruchu");
                             }
@@ -124,34 +110,34 @@ public class Engine {
                             break;
                     }
                     dozwoloneRuchy();
-                    if (dozwolone1.size() + dozwolone2.size() == 0) {
+                    if (consenti1.size() + consenti2.size() == 0) {
                         System.out.println("Gra zakończona");
-                        if (ktoWygral() == gracz) System.out.println("Wygrywa " + name);
-                        else if (ktoWygral() == gracz2) System.out.println("Wygrywa " + name2);
+                        if (ktoWygral() == giocatore) System.out.println("Wygrywa " + name);
+                        else if (ktoWygral() == giocatore2) System.out.println("Wygrywa " + name2);
                         else System.out.println("Remis");
                         close();
-                    } else if (dozwolone2.size() == 0) {
-                        tura = 1;
+                    } else if (consenti2.size() == 0) {
+                        gira = 1;
                         turaInfo();
                         System.out.println("Brak dozwolonych ruchów dla lewego okna");
                     }
                     //}
                 } else {
                     System.out.println("Tura drugiego okienka");
-                    byte[] message = new byte[koniec.length + 1];
-                    if (dozwolone1.size() + dozwolone2.size() == 0) {
+                    byte[] message = new byte[fine.length + 1];
+                    if (consenti1.size() + consenti2.size() == 0) {
                         System.out.println("Gra zakończona");
-                        if (ktoWygral() == gracz) System.out.println("Wygrywa " + name);
-                        else if (ktoWygral() == gracz2) System.out.println("Wygrywa " + name2);
+                        if (ktoWygral() == giocatore) System.out.println("Wygrywa " + name);
+                        else if (ktoWygral() == giocatore2) System.out.println("Wygrywa " + name2);
                         else System.out.println("Remis");
                         //send(new byte[] {7});
                         close();
-                    } else if (dozwolone2.size() == 0) {
-                        tura = 1;
+                    } else if (consenti2.size() == 0) {
+                        gira = 1;
                         System.out.println("Brak dozwolonych ruchów dla prawego okna");
                     } else {
                         System.out.println("Są ruchy do zrobienia dla drugiego okna: ");
-                        for (Byte aByte : dozwolone2) System.out.print(aByte + " ");
+                        for (Byte aByte : consenti2) System.out.print(aByte + " ");
                         System.out.println();
 
                         switch (response[0]) {
@@ -159,16 +145,16 @@ public class Engine {
                                 break;
                             case 4:
                                 byte rzad = response[1], kolumna = response[2];
-                                if (!dozwolone2.contains((byte) (rzad * planszaRozmiar + kolumna))) {
+                                if (!consenti2.contains((byte) (rzad * boardSize + kolumna))) {
                                     message[0] = -1;
                                     out2.write(message);
                                     wyslijStan();
                                     turaInfo();
                                     System.out.println("Przesłano info, że tura nie dozwolona");
                                 } else {
-                                    wykonajRuch(gracz2, rzad, kolumna);
+                                    wykonajRuch(giocatore2, rzad, kolumna);
                                     wyslijStan();
-                                    tura = 1;
+                                    gira = 1;
                                     turaInfo();
                                     System.out.println("Wysłano stany po wyk ruchu");
                                 }
@@ -178,14 +164,14 @@ public class Engine {
                                 break;
                         }
                         dozwoloneRuchy();
-                        if (dozwolone1.size() + dozwolone2.size() == 0) {
+                        if (consenti1.size() + consenti2.size() == 0) {
                             System.out.println("Gra zakończona");
-                            if (ktoWygral() == gracz) System.out.println("Wygrywa " + name);
-                            else if (ktoWygral() == gracz2) System.out.println("Wygrywa " + name2);
+                            if (ktoWygral() == giocatore) System.out.println("Wygrywa " + name);
+                            else if (ktoWygral() == giocatore2) System.out.println("Wygrywa " + name2);
                             else System.out.println("Remis");
                             close();
-                        } else if (dozwolone1.size() == 0) {
-                            tura = 2;
+                        } else if (consenti1.size() == 0) {
+                            gira = 2;
                             turaInfo();
                             System.out.println("Brak dozwolonych ruchów dla lewego okna");
                         }
@@ -204,17 +190,17 @@ public class Engine {
      *
      */
     public void turaInfo() throws IOException {
-        byte[] message = new byte[koniec.length + 1];
-        if (tura == 1) {
+        byte[] message = new byte[fine.length + 1];
+        if (gira == 1) {
             message[0] = 2; // 2 - Przesyłam info że twoja tura
-            System.arraycopy(koniec, 0, message, 1, koniec.length);
+            System.arraycopy(fine, 0, message, 1, fine.length);
             out.write(message);
             System.out.println("Przesłano info, że tura pierwszego");
             message[0] = 3; // 3 - Przesyłam info że tura przeciwnika
             out2.write(message);
         } else {
             message[0] = 2; // 2 - Przesyłam info że twoja tura
-            System.arraycopy(koniec, 0, message, 1, koniec.length);
+            System.arraycopy(fine, 0, message, 1, fine.length);
             out2.write(message);
             System.out.println("Przesłano info, że tura pierwszego");
             message[0] = 3; // 3 - Przesyłam info że tura przeciwnika
@@ -226,50 +212,50 @@ public class Engine {
      * Wypełnienie list dozwolonych ruchów
      */
     private void dozwoloneRuchy() {
-        dozwolone1.clear();
-        dozwolone2.clear();
-        for (byte i = planszaRozmiar / 2; i >= 0; i--) {
+        consenti1.clear();
+        consenti2.clear();
+        for (byte i = boardSize / 2; i >= 0; i--) {
             boolean czySasiadowal = false;
-            for (byte j = 0; j < planszaRozmiar; j++) {
-                boolean t = czySasiaduje(gracz, i, j);
+            for (byte j = 0; j < boardSize; j++) {
+                boolean t = czySasiaduje(giocatore, i, j);
                 czySasiadowal |= t;
                 if (t) {
-                    if (czyRuchPoprawny(gracz, i, j)) dozwolone1.add((byte) (i * planszaRozmiar + j));
+                    if (czyRuchPoprawny(giocatore, i, j)) consenti1.add((byte) (i * boardSize + j));
                 }
             }
             if (!czySasiadowal) break;
         }
-        for (byte i = planszaRozmiar / 2 + 1; i < planszaRozmiar; i++) {
+        for (byte i = boardSize / 2 + 1; i < boardSize; i++) {
             boolean czySasiadowal = false;
-            for (byte j = 0; j < planszaRozmiar; j++) {
-                boolean t = czySasiaduje(gracz, i, j);
+            for (byte j = 0; j < boardSize; j++) {
+                boolean t = czySasiaduje(giocatore, i, j);
                 czySasiadowal |= t;
                 if (t) {
-                    if (czyRuchPoprawny(gracz, i, j)) dozwolone1.add((byte) (i * planszaRozmiar + j));
+                    if (czyRuchPoprawny(giocatore, i, j)) consenti1.add((byte) (i * boardSize + j));
                 }
             }
             if (!czySasiadowal) break;
         }
 
 
-        for (byte i = planszaRozmiar / 2; i >= 0; i--) {
+        for (byte i = boardSize / 2; i >= 0; i--) {
             boolean czySasiadowal = false;
-            for (byte j = 0; j < planszaRozmiar; j++) {
-                boolean t = czySasiaduje(gracz2, i, j);
+            for (byte j = 0; j < boardSize; j++) {
+                boolean t = czySasiaduje(giocatore2, i, j);
                 czySasiadowal |= t;
                 if (t) {
-                    if (czyRuchPoprawny(gracz2, i, j)) dozwolone2.add((byte) (i * planszaRozmiar + j));
+                    if (czyRuchPoprawny(giocatore2, i, j)) consenti2.add((byte) (i * boardSize + j));
                 }
             }
             if (!czySasiadowal) break;
         }
-        for (byte i = planszaRozmiar / 2 + 1; i < planszaRozmiar; i++) {
+        for (byte i = boardSize / 2 + 1; i < boardSize; i++) {
             boolean czySasiadowal = false;
-            for (byte j = 0; j < planszaRozmiar; j++) {
-                boolean t = czySasiaduje(gracz2, i, j);
+            for (byte j = 0; j < boardSize; j++) {
+                boolean t = czySasiaduje(giocatore2, i, j);
                 czySasiadowal |= t;
                 if (t) {
-                    if (czyRuchPoprawny(gracz2, i, j)) dozwolone2.add((byte) (i * planszaRozmiar + j));
+                    if (czyRuchPoprawny(giocatore2, i, j)) consenti2.add((byte) (i * boardSize + j));
                 }
             }
             if (!czySasiadowal) break;
@@ -284,12 +270,12 @@ public class Engine {
     public byte ktoWygral() {
         int punkty1 = 0, punkty2 = 0;
         for (byte b : stan) {
-            if (b == gracz) punkty1++;
-            else if (b == gracz2) punkty2++;
+            if (b == giocatore) punkty1++;
+            else if (b == giocatore2) punkty2++;
         }
-        if (punkty1 > punkty2) return gracz;
+        if (punkty1 > punkty2) return giocatore;
         else if (punkty1 == punkty2) return 0;
-        else return gracz2;
+        else return giocatore2;
     }
 
     /**
@@ -301,7 +287,7 @@ public class Engine {
      * @return true gdy ruch poprawny, false w przeciwnym wypadku
      */
     private boolean czyRuchPoprawny(byte g1, byte rzad, byte kolumna) {
-        if (rzad >= planszaRozmiar || kolumna >= planszaRozmiar || stan[rzad * planszaRozmiar + kolumna] != 0)
+        if (rzad >= boardSize || kolumna >= boardSize || stan[rzad * boardSize + kolumna] != 0)
             return false;
 
         byte g2 = 1;
@@ -310,65 +296,65 @@ public class Engine {
         int i;
         // Sprawdzam lewą stronę
         for (i = kolumna - 1; i > 0; i--) {
-            if (stan[planszaRozmiar * rzad + i] == g2) tak = true;
+            if (stan[boardSize * rzad + i] == g2) tak = true;
             else break;
         }
-        if (tak && stan[planszaRozmiar * rzad + i] == g1) return true;
+        if (tak && stan[boardSize * rzad + i] == g1) return true;
         // Sprawdzam prawą stronę
         tak = false;
-        for (i = kolumna + 1; i < planszaRozmiar - 1; i++) {
-            if (stan[planszaRozmiar * rzad + i] == g2) tak = true;
+        for (i = kolumna + 1; i < boardSize - 1; i++) {
+            if (stan[boardSize * rzad + i] == g2) tak = true;
             else break;
         }
-        if (tak && stan[planszaRozmiar * rzad + i] == g1) return true;
+        if (tak && stan[boardSize * rzad + i] == g1) return true;
         // Sprawdzam górę
         tak = false;
         for (i = rzad - 1; i > 0; i--) {
-            if (stan[planszaRozmiar * i + kolumna] == g2) tak = true;
+            if (stan[boardSize * i + kolumna] == g2) tak = true;
             else break;
         }
-        if (tak && stan[planszaRozmiar * i + kolumna] == g1) return true;
+        if (tak && stan[boardSize * i + kolumna] == g1) return true;
         // Sprawdzam dół
         tak = false;
-        for (i = rzad + 1; i < planszaRozmiar - 1; i++) {
-            if (stan[planszaRozmiar * i + kolumna] == g2) tak = true;
+        for (i = rzad + 1; i < boardSize - 1; i++) {
+            if (stan[boardSize * i + kolumna] == g2) tak = true;
             else break;
         }
-        if (tak && stan[planszaRozmiar * i + kolumna] == g1) return true;
+        if (tak && stan[boardSize * i + kolumna] == g1) return true;
         // Sprawdzam lewą górną przekątną
         tak = false;
-        for (i = planszaRozmiar * rzad + kolumna - (planszaRozmiar + 1); i > planszaRozmiar && (i % planszaRozmiar) < ((i + (planszaRozmiar + 1)) % planszaRozmiar); i -= (planszaRozmiar + 1)) {
+        for (i = boardSize * rzad + kolumna - (boardSize + 1); i > boardSize && (i % boardSize) < ((i + (boardSize + 1)) % boardSize); i -= (boardSize + 1)) {
             if (stan[i] == g2) tak = true;
             else break;
         }
-        if (tak && (i % planszaRozmiar) < (i + (planszaRozmiar + 1)) % planszaRozmiar) {
+        if (tak && (i % boardSize) < (i + (boardSize + 1)) % boardSize) {
             if (stan[i] == g1) return true;
         }
         // Sprawdzam prawą górną przekątną
         tak = false;
-        for (i = planszaRozmiar * rzad + kolumna - (planszaRozmiar - 1); i > planszaRozmiar && (i % planszaRozmiar) > ((i + (planszaRozmiar - 1)) % planszaRozmiar); i -= (planszaRozmiar - 1)) {
+        for (i = boardSize * rzad + kolumna - (boardSize - 1); i > boardSize && (i % boardSize) > ((i + (boardSize - 1)) % boardSize); i -= (boardSize - 1)) {
             if (stan[i] == g2) tak = true;
             else break;
         }
-        if (tak && (i % planszaRozmiar) > (i + (planszaRozmiar - 1)) % planszaRozmiar) {
+        if (tak && (i % boardSize) > (i + (boardSize - 1)) % boardSize) {
             if (stan[i] == g1) return true;
         }
         // Sprawdzam lewą dolną przekątną
         tak = false;
-        for (i = planszaRozmiar * rzad + kolumna + (planszaRozmiar - 1); i < planszaRozmiar * (planszaRozmiar - 1) && (i % planszaRozmiar) < ((i - (planszaRozmiar - 1)) % planszaRozmiar); i += (planszaRozmiar - 1)) {
+        for (i = boardSize * rzad + kolumna + (boardSize - 1); i < boardSize * (boardSize - 1) && (i % boardSize) < ((i - (boardSize - 1)) % boardSize); i += (boardSize - 1)) {
             if (stan[i] == g2) tak = true;
             else break;
         }
-        if (tak && (i % planszaRozmiar) < (i - (planszaRozmiar - 1)) % planszaRozmiar) {
+        if (tak && (i % boardSize) < (i - (boardSize - 1)) % boardSize) {
             if (stan[i] == g1) return true;
         }
         // Sprawdzam prawą dolną przekątną
         tak = false;
-        for (i = planszaRozmiar * rzad + kolumna + (planszaRozmiar + 1); i < planszaRozmiar * (planszaRozmiar - 1) && (i % planszaRozmiar) > ((i - (planszaRozmiar + 1)) % planszaRozmiar); i += (planszaRozmiar + 1)) {
+        for (i = boardSize * rzad + kolumna + (boardSize + 1); i < boardSize * (boardSize - 1) && (i % boardSize) > ((i - (boardSize + 1)) % boardSize); i += (boardSize + 1)) {
             if (stan[i] == g2) tak = true;
             else break;
         }
-        if (tak && (i % planszaRozmiar) > (i - (planszaRozmiar + 1)) % planszaRozmiar) {
+        if (tak && (i % boardSize) > (i - (boardSize + 1)) % boardSize) {
             return stan[i] == g1;
         }
         return false;
@@ -387,33 +373,33 @@ public class Engine {
         byte gracz2 = 1;
         if (gracz == 1) gracz2 = 2;
 
-        if (kolumna - 1 >= 0) lewo = stan[rzad * planszaRozmiar + kolumna - 1] == gracz2;
-        if (kolumna + 1 < planszaRozmiar) prawo = stan[rzad * planszaRozmiar + kolumna + 1] == gracz2;
-        if (rzad + 1 < planszaRozmiar) gora = stan[(rzad + 1) * planszaRozmiar + kolumna] == gracz2;
-        if (rzad - 1 >= 0) dol = stan[(rzad - 1) * planszaRozmiar + kolumna] == gracz2;
+        if (kolumna - 1 >= 0) lewo = stan[rzad * boardSize + kolumna - 1] == gracz2;
+        if (kolumna + 1 < boardSize) prawo = stan[rzad * boardSize + kolumna + 1] == gracz2;
+        if (rzad + 1 < boardSize) gora = stan[(rzad + 1) * boardSize + kolumna] == gracz2;
+        if (rzad - 1 >= 0) dol = stan[(rzad - 1) * boardSize + kolumna] == gracz2;
 
         if (lewo || prawo || gora || dol) return true;
 
         // Sprawdzam lewą górną przekątną
-        for (int i = planszaRozmiar * rzad + kolumna - (planszaRozmiar + 1); i > planszaRozmiar && (i % planszaRozmiar) < ((i + (planszaRozmiar + 1)) % planszaRozmiar); ) {
+        for (int i = boardSize * rzad + kolumna - (boardSize + 1); i > boardSize && (i % boardSize) < ((i + (boardSize + 1)) % boardSize); ) {
             if (stan[i] == gracz2) return true;
             else break;
         }
 
         // Sprawdzam prawą górną przekątną
-        for (int i = planszaRozmiar * rzad + kolumna - (planszaRozmiar - 1); i > planszaRozmiar && (i % planszaRozmiar) > ((i + (planszaRozmiar - 1)) % planszaRozmiar); ) {
+        for (int i = boardSize * rzad + kolumna - (boardSize - 1); i > boardSize && (i % boardSize) > ((i + (boardSize - 1)) % boardSize); ) {
             if (stan[i] == gracz2) return true;
             else break;
         }
 
         // Sprawdzam lewą dolną przekątną
-        for (int i = planszaRozmiar * rzad + kolumna + (planszaRozmiar - 1); i < planszaRozmiar * (planszaRozmiar - 1) && (i % planszaRozmiar) < ((i - (planszaRozmiar - 1)) % planszaRozmiar); ) {
+        for (int i = boardSize * rzad + kolumna + (boardSize - 1); i < boardSize * (boardSize - 1) && (i % boardSize) < ((i - (boardSize - 1)) % boardSize); ) {
             if (stan[i] == gracz2) return true;
             else break;
         }
 
         // Sprawdzam prawą dolną przekątną
-        for (int i = planszaRozmiar * rzad + kolumna + (planszaRozmiar + 1); i < planszaRozmiar * (planszaRozmiar - 1) && (i % planszaRozmiar) > ((i - (planszaRozmiar + 1)) % planszaRozmiar); ) {
+        for (int i = boardSize * rzad + kolumna + (boardSize + 1); i < boardSize * (boardSize - 1) && (i % boardSize) > ((i - (boardSize + 1)) % boardSize); ) {
             if (stan[i] == gracz2) return true;
             else break;
         }
@@ -425,11 +411,11 @@ public class Engine {
      * Wysyła do klientów aktualny stan planszy
      */
     private void wyslijStan() {
-        byte[] message = new byte[stan.length + koniec.length + 1];
+        byte[] message = new byte[stan.length + fine.length + 1];
         message[0] = 1;
         System.arraycopy(stan, 0, message, 1, stan.length);
-        for (int i = 0; i < koniec.length; i++)
-            message[stan.length + 1 + i] = koniec[i];
+        for (int i = 0; i < fine.length; i++)
+            message[stan.length + 1 + i] = fine[i];
         try {
             out.write(message);
             out2.write(message);
@@ -453,60 +439,60 @@ public class Engine {
         int i;
         // Sprawdzam lewą stronę
         for (i = kolumna - 1; i > 0; i--) {
-            if (stan[planszaRozmiar * rzad + i] == gracz2) tak = true;
+            if (stan[boardSize * rzad + i] == gracz2) tak = true;
             else break;
         }
-        if (tak && stan[planszaRozmiar * rzad + i] == gracz) {
+        if (tak && stan[boardSize * rzad + i] == gracz) {
             for (i++; i <= kolumna; i++) {
-                stan[planszaRozmiar * rzad + i] = gracz;
+                stan[boardSize * rzad + i] = gracz;
                 //wykonajRuch(gracz, rzad, (byte) i);
             }
         }
         // Sprawdzam prawą stronę
         tak = false;
-        for (i = kolumna + 1; i < planszaRozmiar - 1; i++) {
-            if (stan[planszaRozmiar * rzad + i] == gracz2) tak = true;
+        for (i = kolumna + 1; i < boardSize - 1; i++) {
+            if (stan[boardSize * rzad + i] == gracz2) tak = true;
             else break;
         }
-        if (tak && stan[planszaRozmiar * rzad + i] == gracz) {
+        if (tak && stan[boardSize * rzad + i] == gracz) {
             for (i--; i >= kolumna; i--) {
-                stan[planszaRozmiar * rzad + i] = gracz;
+                stan[boardSize * rzad + i] = gracz;
                 //wykonajRuch(gracz, rzad, (byte) i);
             }
         }
         // Sprawdzam górę
         tak = false;
         for (i = rzad - 1; i > 0; i--) {
-            if (stan[planszaRozmiar * i + kolumna] == gracz2) tak = true;
+            if (stan[boardSize * i + kolumna] == gracz2) tak = true;
             else break;
         }
-        if (tak && stan[planszaRozmiar * i + kolumna] == gracz) {
+        if (tak && stan[boardSize * i + kolumna] == gracz) {
             for (i++; i <= rzad; i++) {
-                stan[planszaRozmiar * i + kolumna] = gracz;
+                stan[boardSize * i + kolumna] = gracz;
                 //wykonajRuch(gracz, (byte) i, kolumna);
             }
         }
         // Sprawdzam dół
         tak = false;
-        for (i = rzad + 1; i < planszaRozmiar - 1; i++) {
-            if (stan[planszaRozmiar * i + kolumna] == gracz2) tak = true;
+        for (i = rzad + 1; i < boardSize - 1; i++) {
+            if (stan[boardSize * i + kolumna] == gracz2) tak = true;
             else break;
         }
-        if (tak && stan[planszaRozmiar * i + kolumna] == gracz) {
+        if (tak && stan[boardSize * i + kolumna] == gracz) {
             for (i--; i >= rzad; i--) {
-                stan[planszaRozmiar * i + kolumna] = gracz;
+                stan[boardSize * i + kolumna] = gracz;
                 //wykonajRuch(gracz, (byte) i, kolumna);
             }
         }
         // Sprawdzam lewą górną przekątną
         tak = false;
-        for (i = planszaRozmiar * rzad + kolumna - (planszaRozmiar + 1); i > planszaRozmiar && (i % planszaRozmiar) < ((i + (planszaRozmiar + 1)) % planszaRozmiar); i -= (planszaRozmiar + 1)) {
+        for (i = boardSize * rzad + kolumna - (boardSize + 1); i > boardSize && (i % boardSize) < ((i + (boardSize + 1)) % boardSize); i -= (boardSize + 1)) {
             if (stan[i] == gracz2) tak = true;
             else break;
         }
-        if (tak && (i % planszaRozmiar) < (i + (planszaRozmiar + 1)) % planszaRozmiar) {
+        if (tak && (i % boardSize) < (i + (boardSize + 1)) % boardSize) {
             if (stan[i] == gracz) {
-                for (i += planszaRozmiar + 1; i <= planszaRozmiar * rzad + kolumna; i += planszaRozmiar + 1) {
+                for (i += boardSize + 1; i <= boardSize * rzad + kolumna; i += boardSize + 1) {
                     stan[i] = gracz;
                     //wykonajRuch(gracz, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
                 }
@@ -514,13 +500,13 @@ public class Engine {
         }
         // Sprawdzam prawą górną przekątną
         tak = false;
-        for (i = planszaRozmiar * rzad + kolumna - (planszaRozmiar - 1); i > planszaRozmiar && (i % planszaRozmiar) > ((i + (planszaRozmiar - 1)) % planszaRozmiar); i -= (planszaRozmiar - 1)) {
+        for (i = boardSize * rzad + kolumna - (boardSize - 1); i > boardSize && (i % boardSize) > ((i + (boardSize - 1)) % boardSize); i -= (boardSize - 1)) {
             if (stan[i] == gracz2) tak = true;
             else break;
         }
-        if (tak && (i % planszaRozmiar) > (i + (planszaRozmiar - 1)) % planszaRozmiar) {
+        if (tak && (i % boardSize) > (i + (boardSize - 1)) % boardSize) {
             if (stan[i] == gracz) {
-                for (i += planszaRozmiar - 1; i <= planszaRozmiar * rzad + kolumna; i += planszaRozmiar - 1) {
+                for (i += boardSize - 1; i <= boardSize * rzad + kolumna; i += boardSize - 1) {
                     stan[i] = gracz;
                     //wykonajRuch(gracz, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
                 }
@@ -528,13 +514,13 @@ public class Engine {
         }
         // Sprawdzam lewą dolną przekątną
         tak = false;
-        for (i = planszaRozmiar * rzad + kolumna + (planszaRozmiar - 1); i < planszaRozmiar * (planszaRozmiar - 1) && (i % planszaRozmiar) < ((i - (planszaRozmiar - 1)) % planszaRozmiar); i += (planszaRozmiar - 1)) {
+        for (i = boardSize * rzad + kolumna + (boardSize - 1); i < boardSize * (boardSize - 1) && (i % boardSize) < ((i - (boardSize - 1)) % boardSize); i += (boardSize - 1)) {
             if (stan[i] == gracz2) tak = true;
             else break;
         }
-        if (tak && (i % planszaRozmiar) < (i - (planszaRozmiar - 1)) % planszaRozmiar) {
+        if (tak && (i % boardSize) < (i - (boardSize - 1)) % boardSize) {
             if (stan[i] == gracz) {
-                for (i -= planszaRozmiar - 1; i >= planszaRozmiar * rzad + kolumna; i -= planszaRozmiar - 1) {
+                for (i -= boardSize - 1; i >= boardSize * rzad + kolumna; i -= boardSize - 1) {
                     stan[i] = gracz;
                     //wykonajRuch(gracz, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
                 }
@@ -542,13 +528,13 @@ public class Engine {
         }
         // Sprawdzam prawą dolną przekątną
         tak = false;
-        for (i = planszaRozmiar * rzad + kolumna + (planszaRozmiar + 1); i < planszaRozmiar * (planszaRozmiar - 1) && (i % planszaRozmiar) > ((i - (planszaRozmiar + 1)) % planszaRozmiar); i += (planszaRozmiar + 1)) {
+        for (i = boardSize * rzad + kolumna + (boardSize + 1); i < boardSize * (boardSize - 1) && (i % boardSize) > ((i - (boardSize + 1)) % boardSize); i += (boardSize + 1)) {
             if (stan[i] == gracz2) tak = true;
             else break;
         }
-        if (tak && (i % planszaRozmiar) > (i - (planszaRozmiar + 1)) % planszaRozmiar) {
+        if (tak && (i % boardSize) > (i - (boardSize + 1)) % boardSize) {
             if (stan[i] == gracz) {
-                for (i -= planszaRozmiar + 1; i >= planszaRozmiar * rzad + kolumna; i -= planszaRozmiar + 1) {
+                for (i -= boardSize + 1; i >= boardSize * rzad + kolumna; i -= boardSize + 1) {
                     stan[i] = gracz;
                     //wykonajRuch(gracz, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
                 }

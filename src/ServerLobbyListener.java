@@ -94,7 +94,7 @@ public class ServerLobbyListener extends Thread {
                 } else if (message.getBytes()[0] == 2) {
                     //wait = true;
                 } else if (message.getBytes()[0] == 4) {
-                    if ((e.socket == client && e.tura == 1) || (e.socket2 == client && e.tura == 2)) {
+                    if ((e.socket == client && e.gira == 1) || (e.socket2 == client && e.gira == 2)) {
                         System.out.println("Odebrano ruch od gracza");
                         this.e.run(message.getBytes());
                     }
