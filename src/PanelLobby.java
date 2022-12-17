@@ -31,7 +31,6 @@ public class PanelLobby extends JPanel {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 final Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                // c.setFocusable(true);
 
                 if ((table.getValueAt(row, 1)).toString().compareTo(Main.name) == 0) {
                     c.setBackground(LIGHT_GRAY);
