@@ -100,12 +100,7 @@ public class GameWindow extends JFrame {
 
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     System.out.println("Testo: " + tA.getText());
-                    //try {
                     Main.clientThread.send((tA.getText().replace('\n', ' ')).getBytes());
-                    //} catch (IOException e1) {
-                    //	e1.printStackTrace();
-                    //}
-                    //tA.setText("");
                 }
             }
 
