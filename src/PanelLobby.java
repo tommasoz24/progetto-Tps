@@ -2,25 +2,18 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import static java.awt.Color.*;
 
-/**
- * Panel wyświetlający w tabeli listę wszystkich klientów będących na serwerze, wraz z przyciskami Graj i Odśwież
- *
- * @author Bartosz Ruta
- */
+// Un pannello che mostra un elenco di tutti i client sul server in una tabella, insieme ai pulsanti Riproduci e Aggiorna
+
 public class PanelLobby extends JPanel {
 
     private final JTable table;
     DefaultTableModel dtm;
     Object[][] s;
 
-    /**
-     * Tworzy obiekt PanelLobby
-     */
+    // costruttore
     public PanelLobby() {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         dtm = new DefaultTableModel() {
@@ -47,10 +40,8 @@ public class PanelLobby extends JPanel {
                     c.setBackground(LIGHT_GRAY);
                     c.setForeground(RED);
                 } else {
-                    if (table.getSelectedRow() == row)
-                        c.setBackground(GREEN);
-                    else
-                        c.setBackground(WHITE);
+                    if (table.getSelectedRow() == row) c.setBackground(GREEN);
+                    else c.setBackground(WHITE);
                     c.setForeground(BLACK);
                 }
 
@@ -62,23 +53,18 @@ public class PanelLobby extends JPanel {
         JPanel a = new JPanel();
         a.setLayout(new FlowLayout());
         JButton button = new JButton("Odśwież");
-        button.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                requestTableUpdate();
-            }
-        });
+        button.addActionListener(e -> requestTableUpdate());
 
         JButton button2 = new JButton("Graj");
-        button2.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                int row = table.getSelectedRow();
-                if (row != -1 && ((String) table.getValueAt(row, 1)).compareTo(Main.name) != 0 && (byte) table.getValueAt(row, 2) != 1) {
-                    try {
-                        String z = table.getValueAt(row, 1).toString();
-                        System.out.println("Wywołanie graj() z arg " + z);
-                        graj(z);
-                    } catch (NumberFormatException nfe) {
-                    }
+        button2.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row != -1 && ((String) table.getValueAt(row, 1)).compareTo(Main.name) != 0 && (byte) table.getValueAt(row, 2) != 1) {
+                try {
+                    String z = table.getValueAt(row, 1).toString();
+                    System.out.println("Wywołanie graj() z arg " + z);
+                    graj(z);
+                } catch (NumberFormatException nfe) {
+                    nfe.printStackTrace();
                 }
             }
         });
@@ -100,8 +86,7 @@ public class PanelLobby extends JPanel {
         int size = dtm.getRowCount();
         for (int i = 0; i < size; i++)
             dtm.removeRow(0);
-        for (int i = 0; i < s.length; i++)
-            dtm.addRow(s[i]);
+        for (Object[] objects : s) dtm.addRow(objects);
         repaint();
     }
 
@@ -126,8 +111,7 @@ public class PanelLobby extends JPanel {
     public void graj(String a) {
         byte[] m = new byte[a.length() + 1];
         byte[] b = a.getBytes();
-        for (int i = 0; i < a.length(); i++)
-            m[i + 1] = b[i];
+        System.arraycopy(b, 0, m, 1, a.length());
         m[0] = 1;
         //try {
         Main.clientThread.send(m);
