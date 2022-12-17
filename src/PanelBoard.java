@@ -141,7 +141,7 @@ public class PanelBoard extends JPanel {
      */
     public void przydzielTure() {
         t = true;
-        Main.window.zmienKolorRamki(((giocatore == 2) ? true : false));
+        Main.window.zmienKolorRamki((giocatore == 2));
     }
 
     /**
@@ -149,7 +149,7 @@ public class PanelBoard extends JPanel {
      */
     public void zabierzTure() {
         t = false;
-        Main.window.zmienKolorRamki(((giocatore == 2) ? false : true));
+        Main.window.zmienKolorRamki((giocatore != 2));
     }
 
     /**
@@ -172,9 +172,9 @@ public class PanelBoard extends JPanel {
      */
     public byte[] getScores() {
         byte[] s = new byte[2];
-        for (int i = 0; i < stato.length; i++) {
-            if (stato[i] == 1) s[1]++;
-            else if (stato[i] == 2) s[0]++;
+        for (byte b : stato) {
+            if (b == 1) s[1]++;
+            else if (b == 2) s[0]++;
         }
         return s;
     }
@@ -190,8 +190,6 @@ public class PanelBoard extends JPanel {
         dimY = getHeight() / panelDimension;
         g2d.setColor(Color.BLACK);
         for (int i = 0; i <= panelDimension; i++) {
-            //g2d.drawLine(0, i*dimY, getWidth(), i*dimY);
-            //g2d.drawLine(i*dimX, 0, i*dimX, getHeight());
             g2d.drawLine(0, i * dimY, panelDimension * dimX, i * dimY);
             g2d.drawLine(i * dimX, 0, i * dimX, panelDimension * dimY);
         }
