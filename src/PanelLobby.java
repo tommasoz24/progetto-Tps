@@ -74,11 +74,7 @@ public class PanelLobby extends JPanel {
         requestTableUpdate();
     }
 
-
-    // richiede al server di aggiornare la tabella
-
-
-    public void updateTable(Object[][] s) {
+    public void updateTable(Object[][] s) { // richiede al server di aggiornare la tabella
         this.s = s;
         int size = dtm.getRowCount();
         for (int i = 0; i < size; i++)
@@ -87,8 +83,7 @@ public class PanelLobby extends JPanel {
         repaint();
     }
 
-    // invio con in ClientThread la richiesta di aggiornamento della tabella
-    public void requestTableUpdate() {
+    public void requestTableUpdate() {  // richiede al server di aggiornare la tabella
         byte[] m = {0};
         Main.clientThread.send(m);
     }
