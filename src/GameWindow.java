@@ -78,7 +78,6 @@ public class GameWindow extends JFrame {
         c.gridx = 4;
         c.gridy = 0;
         contentPane.add(czatIscrollbar, c);
-        //c.anchor = GridBagConstraints.FIRST_LINE_END;
 
         JTextArea tA = new JTextArea();/*{
 			public void keyPressed(KeyEvent e) {
