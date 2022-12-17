@@ -30,11 +30,11 @@ public class Main {
 	/** Obiekt wątku menedżera połączeń
 	 *
 	 */
-	static public SerwerLobbyConManager lobby;
+	static public ServerLobbyConManager lobby;
 	/** Lista działających wątków komunikacyjnych po stronie serwera
 	 *
 	 */
-	//static public List<SerwerLobbyListener> listeners = new ArrayList<>(10);
+	//static public List<ServerLobbyListener> listeners = new ArrayList<>(10);
 	/** Panel należący do okna lobby
 	 * 
 	 */
