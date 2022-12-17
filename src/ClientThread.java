@@ -58,12 +58,12 @@ public class ClientThread extends Thread {
 					Main.name = line.substring(1);
 				} else if (response[0] == 5) {
 					System.out.println("Richiesta di creazione di una finestra di gioco - Nero");
-					Main.okno = new OknoGra(true);
+					Main.okno = new GameWindow(true);
 					System.out.println("È stata creata una finestra");
 
 				} else if (response[0] == 6) {
 					System.out.println("Richiesta di creazione di una finestra di gioco - Bianco");
-					Main.okno = new OknoGra(false);
+					Main.okno = new GameWindow(false);
 					System.out.println("È stata creata una finestra");
 				} else if (response[0] == 7) {
 					byte[] wyniki = Main.okno.getPlansza().getScores();
@@ -92,7 +92,7 @@ public class ClientThread extends Thread {
 					for (int i = 0; i < response.length; i++)
 						a[i] = (char) response[i];
 					System.out.println(new String(a));
-					Main.okno.czat.wyswietlWiadomosc(new String(a));
+					Main.okno.chat.wyswietlWiadomosc(new String(a));
 				}
 
 			}

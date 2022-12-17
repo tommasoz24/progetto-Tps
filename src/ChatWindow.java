@@ -11,15 +11,15 @@ import javax.swing.text.StyleContext;
  * @author Bartosz Ruta
  *
  */
-public class OknoCzat extends JTextPane {
+public class ChatWindow extends JTextPane {
 	private Color a = Color.GREEN, b = Color.BLACK;
 	//private boolean aktywny = false;
 	//private JScrollPane scrollbar;
 	
-	/** Tworzy obiekt wyświetlający czat
+	/** Tworzy obiekt wyświetlający chat
 	 * 
 	 */
-	public OknoCzat() {
+	public ChatWindow() {
 		setBackground(Color.LIGHT_GRAY);
 		/*for (int i=0; i<100; i++)
 			wyswietlWiadomosc("Przykładowy tekst coś tam coś tam",b);*/
@@ -30,7 +30,7 @@ public class OknoCzat extends JTextPane {
 		aktywuj();
 	}
 	
-	/** Wyświetla wiadomość na czat zmieniając kolor na:
+	/** Wyświetla wiadomość na chat zmieniając kolor na:
 	 * Zielony, gdy wiadomość poprzedza nick klienta, u którego otwarte jest okno
 	 * Czarny w przeciwnym wypadku
 	 * @param msg Treść wiadomości

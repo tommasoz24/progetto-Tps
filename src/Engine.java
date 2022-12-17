@@ -543,10 +543,10 @@ public class Engine {
     }
 
     /**
-     * Wysyła wiadomość na czat do każdego z graczy dopisując prawidłowy prefiks (nick gracza) i dodając znaki końca linii
+     * Wysyła wiadomość na chat do każdego z graczy dopisując prawidłowy prefiks (nick gracza) i dodając znaki końca linii
      *
      * @param s       Socket gracza wysyłającego wiadomość
-     * @param message Wiadomość do wysłania na czat
+     * @param message Wiadomość do wysłania na chat
      */
     public void sendM(Socket s, byte[] message) throws IOException {
         byte[] koniec = "\r\n".getBytes();

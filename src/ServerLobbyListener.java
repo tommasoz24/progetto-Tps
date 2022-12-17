@@ -100,7 +100,7 @@ public class ServerLobbyListener extends Thread {
                     }
                     //e.notify();
                 } else {
-                    System.out.println("Odebrano wiadomość na czat");
+                    System.out.println("Odebrano wiadomość na chat");
                     //Main.e.sendM(client,message.getBytes());
                     this.e.sendM(client, message.getBytes());
 

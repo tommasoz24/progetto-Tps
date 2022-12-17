@@ -12,7 +12,7 @@ import javax.swing.WindowConstants;
 // Client Main
 public class Main {
 
-	static public OknoGra okno;
+	static public GameWindow okno;
 
 	static public JFrame oknoLobby;
 
