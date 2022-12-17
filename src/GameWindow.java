@@ -69,7 +69,7 @@ public class GameWindow extends JFrame {
         contentPane.add(panel, c);
 
         chat = new ChatWindow();
-        JScrollPane czatIscrollbar = new JScrollPane(chat, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        JScrollPane chatScrollbar = new JScrollPane(chat, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 0.2;
         c.weighty = 0.9;
@@ -77,7 +77,7 @@ public class GameWindow extends JFrame {
         c.gridheight = 2;
         c.gridx = 4;
         c.gridy = 0;
-        contentPane.add(czatIscrollbar, c);
+        contentPane.add(chatScrollbar, c);
 
         JTextArea tA = new JTextArea();/*{
 			public void keyPressed(KeyEvent e) {
@@ -99,7 +99,7 @@ public class GameWindow extends JFrame {
             public void keyPressed(KeyEvent e) {
 
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    System.out.println("Tekst: " + tA.getText());
+                    System.out.println("Testo: " + tA.getText());
                     //try {
                     Main.clientThread.send((tA.getText().replace('\n', ' ')).getBytes());
                     //} catch (IOException e1) {
