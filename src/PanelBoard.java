@@ -14,61 +14,57 @@ import java.util.List;
 public class PanelBoard extends JPanel {
     private final int panelDimension = 8;
     private int dimX, dimY, colonna, riga;
-    private boolean tura = false;
+    private boolean t = false;      // t è true se il mouse è dentro il pannello
     private Color a = Color.WHITE;
     public byte giocatore = 1;
-    private byte[] stan = new byte[panelDimension * panelDimension]; // 0 - nic, 1 - biały, 2 - czarny
+    private byte[] stato = new byte[panelDimension * panelDimension]; // 0 - niente, 1 - bianco, 2 - nero
     List<Integer> l = new ArrayList<>(20);
 
     /**
      * Tworzy obiekt Panelu z pionkami gracza o odpowiednim kolorze
      *
-     * @param kolor Kolor gracza tworzącego panel, wartość: false - biały, true - czarny
+     * @param colore Kolor gracza tworzącego panel, wartość: false - biały, true - czarny
      */
-    public PanelBoard(boolean kolor) { // false - biały, true - czarny
+    public PanelBoard(boolean colore) { // false - bianco, true - nero
         System.out.println("Tworzenie panelu planszy");
         setBackground(Color.GREEN);
-        if (kolor) {
+        if (colore) {
             a = Color.BLACK;
             giocatore = 2;
-            tura = true;
+            t = true;
         }
         this.setPreferredSize(new Dimension(500, 500));
         this.setMinimumSize(new Dimension(100, 100));
-        stan[0] = 1;
-        stan[1] = 2;
-        stan[2] = 2;
-        stan[24] = 2;
-        stan[25] = 2;
-        stan[27] = 2;
-        stan[32] = 2;
-        stan[33] = 1;
-        stan[34] = 1;
-        stan[35] = 1;
-        stan[40] = 1;
-        stan[48] = 1;
-        stan[42] = 1;
-        stan[49] = 2;
+        stato[0] = 1;
+        stato[1] = 2;
+        stato[2] = 2;
+        stato[24] = 2;
+        stato[25] = 2;
+        stato[27] = 2;
+        stato[32] = 2;
+        stato[33] = 1;
+        stato[34] = 1;
+        stato[35] = 1;
+        stato[40] = 1;
+        stato[48] = 1;
+        stato[42] = 1;
+        stato[49] = 2;
         addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (tura) {
+                if (t) {
                     if (e.getX() / dimX < panelDimension && e.getY() / dimY < panelDimension) {
                         colonna = e.getX() / dimX;
                         riga = e.getY() / dimY;
                     }
-                    if (stan[panelDimension * riga + colonna] != 1 && stan[panelDimension * riga + colonna] != 2 && l.size() > 0) {
-                        stan[panelDimension * riga + colonna] = giocatore;
+                    if (stato[panelDimension * riga + colonna] != 1 && stato[panelDimension * riga + colonna] != 2 && l.size() > 0) {
+                        stato[panelDimension * riga + colonna] = giocatore;
                         byte[] message = {4, (byte) riga, (byte) colonna};
                         //try {
                         System.out.println("Kliknięto pole i wysyłanie ruchu");
                         Main.clientThread.send(message);
                         l.clear();
-                        //} catch (IOException e1) {
-                        // TODO Auto-generated catch block
-                        //	e1.printStackTrace();
-                        //}
-                        tura = false;
+                        t = false;
                     }
                 }
             }
@@ -111,10 +107,10 @@ public class PanelBoard extends JPanel {
                     byte gracz2 = 1;
                     if (giocatore == 1) gracz2 = 2;
 
-                    if (stan[panelDimension * riga + colonna] == 3) {
-                        stan[panelDimension * riga + colonna] = 0;
+                    if (stato[panelDimension * riga + colonna] == 3) {
+                        stato[panelDimension * riga + colonna] = 0;
                         for (Integer integer : l) {
-                            stan[integer] = gracz2;
+                            stato[integer] = gracz2;
                         }
                         l.clear();
                         repaint();
@@ -125,11 +121,11 @@ public class PanelBoard extends JPanel {
                         riga = e.getY() / dimY;
                     }
                     if (czySasiaduje(riga, colonna)) {
-                        if (stan[panelDimension * riga + colonna] == 0) {
+                        if (stato[panelDimension * riga + colonna] == 0) {
 
                             sprawdzMozliwePrzejecia(riga, colonna);
                             if (l.size() > 0) {
-                                stan[panelDimension * riga + colonna] = 3;
+                                stato[panelDimension * riga + colonna] = 3;
                                 repaint();
                             }
                         }
@@ -144,7 +140,7 @@ public class PanelBoard extends JPanel {
      * Przydziela turę graczowi
      */
     public void przydzielTure() {
-        tura = true;
+        t = true;
         Main.window.zmienKolorRamki(((giocatore == 2) ? true : false));
     }
 
@@ -152,17 +148,17 @@ public class PanelBoard extends JPanel {
      * Zabiera turę graczowi
      */
     public void zabierzTure() {
-        tura = false;
+        t = false;
         Main.window.zmienKolorRamki(((giocatore == 2) ? false : true));
     }
 
     /**
-     * Aktualizuję aktualny stan planszy zamieniąc go na zawartość tablicy
+     * Aktualizuję aktualny stato planszy zamieniąc go na zawartość tablicy
      *
      * @param stan Tablica z docelowym stanem planszy
      */
     public void updatePlansza(byte[] stan) {
-        this.stan = stan;
+        this.stato = stan;
         repaint();
         byte[] scores = getScores();
         Main.window.label.setText("" + (int) scores[0]);
@@ -176,9 +172,9 @@ public class PanelBoard extends JPanel {
      */
     public byte[] getScores() {
         byte[] s = new byte[2];
-        for (int i = 0; i < stan.length; i++) {
-            if (stan[i] == 1) s[1]++;
-            else if (stan[i] == 2) s[0]++;
+        for (int i = 0; i < stato.length; i++) {
+            if (stato[i] == 1) s[1]++;
+            else if (stato[i] == 2) s[0]++;
         }
         return s;
     }
@@ -201,15 +197,15 @@ public class PanelBoard extends JPanel {
         }
         for (int i = 0; i < panelDimension; i++) { //wiersze
             for (int j = 0; j < panelDimension; j++) { //kolumny
-                if (stan[i * panelDimension + j] == 1) {
+                if (stato[i * panelDimension + j] == 1) {
                     g2d.setColor(Color.WHITE);
                     //g2d.fillArc(j*dimX + dimX/2, i*dimY + dimY/2, dimX, dimY, 0, 360);
                     g2d.fillArc(j * dimX + 2, i * dimY + 2, dimX - 4, dimY - 4, 0, 360);
-                } else if (stan[i * panelDimension + j] == 2) {
+                } else if (stato[i * panelDimension + j] == 2) {
                     g2d.setColor(Color.BLACK);
                     //g2d.fillArc(j*dimX + dimX/2, i*dimY + dimY/2, dimX/2, dimY/2, 0, 360);
                     g2d.fillArc(j * dimX + 2, i * dimY + 2, dimX - 4, dimY - 4, 0, 360);
-                } else if (stan[i * panelDimension + j] == 3) {
+                } else if (stato[i * panelDimension + j] == 3) {
                     g2d.setColor(a);
                     g2d.drawArc(j * dimX + 2, i * dimY + 2, dimX - 4, dimY - 4, 0, 360);
                 }
@@ -229,37 +225,37 @@ public class PanelBoard extends JPanel {
         boolean lewo = false, prawo = false, gora = false, dol = false;
 
         if (kolumna - 1 >= 0)
-            lewo = stan[rzad * panelDimension + kolumna - 1] == 1 || stan[rzad * panelDimension + kolumna - 1] == 2;
+            lewo = stato[rzad * panelDimension + kolumna - 1] == 1 || stato[rzad * panelDimension + kolumna - 1] == 2;
         if (kolumna + 1 < panelDimension)
-            prawo = stan[rzad * panelDimension + kolumna + 1] == 1 || stan[rzad * panelDimension + kolumna + 1] == 2;
+            prawo = stato[rzad * panelDimension + kolumna + 1] == 1 || stato[rzad * panelDimension + kolumna + 1] == 2;
         if (rzad + 1 < panelDimension)
-            gora = stan[(rzad + 1) * panelDimension + kolumna] == 1 || stan[(rzad + 1) * panelDimension + kolumna] == 2;
+            gora = stato[(rzad + 1) * panelDimension + kolumna] == 1 || stato[(rzad + 1) * panelDimension + kolumna] == 2;
         if (rzad - 1 >= 0)
-            dol = stan[(rzad - 1) * panelDimension + kolumna] == 1 || stan[(rzad - 1) * panelDimension + kolumna] == 2;
+            dol = stato[(rzad - 1) * panelDimension + kolumna] == 1 || stato[(rzad - 1) * panelDimension + kolumna] == 2;
 
         if (lewo || prawo || gora || dol) return true;
 
         // Sprawdzam lewą górną przekątną
         for (int i = panelDimension * rzad + kolumna - (panelDimension + 1); i > panelDimension && (i % panelDimension) < ((i + (panelDimension + 1)) % panelDimension); ) {
-            if (stan[i] == 1 || stan[i] == 2) return true;
+            if (stato[i] == 1 || stato[i] == 2) return true;
             else break;
         }
 
         // Sprawdzam prawą górną przekątną
         for (int i = panelDimension * rzad + kolumna - (panelDimension - 1); i > panelDimension && (i % panelDimension) > ((i + (panelDimension - 1)) % panelDimension); ) {
-            if (stan[i] == 1 || stan[i] == 2) return true;
+            if (stato[i] == 1 || stato[i] == 2) return true;
             else break;
         }
 
         // Sprawdzam lewą dolną przekątną
         for (int i = panelDimension * rzad + kolumna + (panelDimension - 1); i < panelDimension * (panelDimension - 1) && (i % panelDimension) < ((i - (panelDimension - 1)) % panelDimension); ) {
-            if (stan[i] == 1 || stan[i] == 2) return true;
+            if (stato[i] == 1 || stato[i] == 2) return true;
             else break;
         }
 
         // Sprawdzam prawą dolną przekątną
         for (int i = panelDimension * rzad + kolumna + (panelDimension + 1); i < panelDimension * (panelDimension - 1) && (i % panelDimension) > ((i - (panelDimension + 1)) % panelDimension); ) {
-            if (stan[i] == 1 || stan[i] == 2) return true;
+            if (stato[i] == 1 || stato[i] == 2) return true;
             else break;
         }
 
@@ -280,121 +276,121 @@ public class PanelBoard extends JPanel {
         int i;
         // Sprawdzam lewą stronę
         for (i = kolumna - 1; i > 0; i--) {
-            if (stan[panelDimension * rzad + i] == gracz2) tak = true;
+            if (stato[panelDimension * rzad + i] == gracz2) tak = true;
             else break;
         }
-        if (tak && stan[panelDimension * rzad + i] == giocatore) {
+        if (tak && stato[panelDimension * rzad + i] == giocatore) {
             for (i++; i < kolumna; i++) {
-                stan[panelDimension * rzad + i] = 3;
+                stato[panelDimension * rzad + i] = 3;
                 //sprawdzMozliwePrzejecia(riga,i);
                 l.add((panelDimension * rzad + i));
             }
-            stan[panelDimension * rzad + i] = 3;
+            stato[panelDimension * rzad + i] = 3;
         }
         // Sprawdzam prawą stronę
         tak = false;
         for (i = kolumna + 1; i < panelDimension - 1; i++) {
-            if (stan[panelDimension * rzad + i] == gracz2) tak = true;
+            if (stato[panelDimension * rzad + i] == gracz2) tak = true;
             else break;
         }
-        if (tak && stan[panelDimension * rzad + i] == giocatore) {
+        if (tak && stato[panelDimension * rzad + i] == giocatore) {
             for (i--; i > kolumna; i--) {
-                stan[panelDimension * rzad + i] = 3;
+                stato[panelDimension * rzad + i] = 3;
                 //sprawdzMozliwePrzejecia(riga,i);
                 l.add((panelDimension * rzad + i));
             }
-            stan[panelDimension * rzad + i] = 3;
+            stato[panelDimension * rzad + i] = 3;
         }
         // Sprawdzam górę
         tak = false;
         for (i = rzad - 1; i > 0; i--) {
-            if (stan[panelDimension * i + kolumna] == gracz2) tak = true;
+            if (stato[panelDimension * i + kolumna] == gracz2) tak = true;
             else break;
         }
-        if (tak && stan[panelDimension * i + kolumna] == giocatore) {
+        if (tak && stato[panelDimension * i + kolumna] == giocatore) {
             for (i++; i < rzad; i++) {
-                stan[panelDimension * i + kolumna] = 3;
+                stato[panelDimension * i + kolumna] = 3;
                 //sprawdzMozliwePrzejecia(i,colonna);
                 l.add(panelDimension * i + kolumna);
             }
-            stan[panelDimension * i + kolumna] = 3;
+            stato[panelDimension * i + kolumna] = 3;
         }
         // Sprawdzam dół
         tak = false;
         for (i = rzad + 1; i < panelDimension - 1; i++) {
-            if (stan[panelDimension * i + kolumna] == gracz2) tak = true;
+            if (stato[panelDimension * i + kolumna] == gracz2) tak = true;
             else break;
         }
-        if (tak && stan[panelDimension * i + kolumna] == giocatore) {
+        if (tak && stato[panelDimension * i + kolumna] == giocatore) {
             for (i--; i > rzad; i--) {
-                stan[panelDimension * i + kolumna] = 3;
+                stato[panelDimension * i + kolumna] = 3;
                 //sprawdzMozliwePrzejecia(i,colonna);
                 l.add(panelDimension * i + kolumna);
             }
-            stan[panelDimension * i + kolumna] = 3;
+            stato[panelDimension * i + kolumna] = 3;
         }
         // Sprawdzam lewą górną przekątną
         tak = false;
         for (i = panelDimension * rzad + kolumna - (panelDimension + 1); i > panelDimension && (i % panelDimension) < ((i + (panelDimension + 1)) % panelDimension); i -= (panelDimension + 1)) {
-            if (stan[i] == gracz2) tak = true;
+            if (stato[i] == gracz2) tak = true;
             else break;
         }
         if (tak && (i % panelDimension) < (i + (panelDimension + 1)) % panelDimension) {
-            if (stan[i] == giocatore) {
+            if (stato[i] == giocatore) {
                 for (i += panelDimension + 1; i < panelDimension * rzad + kolumna; i += panelDimension + 1) {
-                    stan[i] = 3;
+                    stato[i] = 3;
                     //sprawdzMozliwePrzejecia(i/panelDimension, i%panelDimension);
                     l.add(i);
                 }
-                stan[i] = 3;
+                stato[i] = 3;
             }
         }
         // Sprawdzam prawą górną przekątną
         tak = false;
         for (i = panelDimension * rzad + kolumna - (panelDimension - 1); i > panelDimension && (i % panelDimension) > ((i + (panelDimension - 1)) % panelDimension); i -= (panelDimension - 1)) {
-            if (stan[i] == gracz2) tak = true;
+            if (stato[i] == gracz2) tak = true;
             else break;
         }
         if (tak && (i % panelDimension) > (i + (panelDimension - 1)) % panelDimension) {
-            if (stan[i] == giocatore) {
+            if (stato[i] == giocatore) {
                 for (i += panelDimension - 1; i < panelDimension * rzad + kolumna; i += panelDimension - 1) {
-                    stan[i] = 3;
+                    stato[i] = 3;
                     //sprawdzMozliwePrzejecia(i/panelDimension, i%panelDimension);
                     l.add(i);
                 }
-                stan[i] = 3;
+                stato[i] = 3;
             }
         }
         // Sprawdzam lewą dolną przekątną
         tak = false;
         for (i = panelDimension * rzad + kolumna + (panelDimension - 1); i < panelDimension * (panelDimension - 1) && (i % panelDimension) < ((i - (panelDimension - 1)) % panelDimension); i += (panelDimension - 1)) {
-            if (stan[i] == gracz2) tak = true;
+            if (stato[i] == gracz2) tak = true;
             else break;
         }
         if (tak && (i % panelDimension) < (i - (panelDimension - 1)) % panelDimension) {
-            if (stan[i] == giocatore) {
+            if (stato[i] == giocatore) {
                 for (i -= panelDimension - 1; i > panelDimension * rzad + kolumna; i -= panelDimension - 1) {
-                    stan[i] = 3;
+                    stato[i] = 3;
                     //sprawdzMozliwePrzejecia(i/panelDimension, i%panelDimension);
                     l.add(i);
                 }
-                stan[i] = 3;
+                stato[i] = 3;
             }
         }
         // Sprawdzam prawą dolną przekątną
         tak = false;
         for (i = panelDimension * rzad + kolumna + (panelDimension + 1); i < panelDimension * (panelDimension - 1) && (i % panelDimension) > ((i - (panelDimension + 1)) % panelDimension); i += (panelDimension + 1)) {
-            if (stan[i] == gracz2) tak = true;
+            if (stato[i] == gracz2) tak = true;
             else break;
         }
         if (tak && (i % panelDimension) > (i - (panelDimension + 1)) % panelDimension) {
-            if (stan[i] == giocatore) {
+            if (stato[i] == giocatore) {
                 for (i -= panelDimension + 1; i > panelDimension * rzad + kolumna; i -= panelDimension + 1) {
-                    stan[i] = 3;
+                    stato[i] = 3;
                     //sprawdzMozliwePrzejecia(i/panelDimension, i%panelDimension);
                     l.add(i);
                 }
-                stan[i] = 3;
+                stato[i] = 3;
             }
         }
     }
