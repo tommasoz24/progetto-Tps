@@ -10,7 +10,7 @@ import javax.swing.JOptionPane;
 // thread che gestisce la comunicazione che permette conessione client-server
 public class ClientThread extends Thread {
 
-	private Socket socket;
+	private final Socket socket;
 	private BufferedReader in;
 	private OutputStream out;
 	boolean prossimo = true;
@@ -27,8 +27,8 @@ public class ClientThread extends Thread {
 	}
 
 	public void run() {
-		byte[] response = new byte[64];
-		byte[] stan = new byte[64];
+		byte[] response;
+		byte[] stan;
 		try {
 			while (prossimo) {
 				String line = in.readLine();
@@ -46,8 +46,7 @@ public class ClientThread extends Thread {
 					Main.pl.updateTable(s);
 				} else if (response[0] == 1) {
 					stan = new byte[64];
-					for (int i = 0; i < stan.length; i++)
-						stan[i] = response[i + 1];
+					System.arraycopy(response, 1, stan, 0, stan.length);
 					Main.window.getPanel().updatePlansza(stan);
 				} else if (response[0] == 2) {
 					System.out.println("Messaggio ricevuto - è il mio turno");
@@ -119,10 +118,8 @@ public class ClientThread extends Thread {
 	public void send(byte[] message) {
 		byte[] koniec = "\r\n".getBytes();
 		byte[] m = new byte[message.length + koniec.length];
-		for (int i = 0; i < message.length; i++)
-			m[i] = message[i];
-		for (int i = 0; i < koniec.length; i++)
-			m[message.length + i] = koniec[i];
+		System.arraycopy(message, 0, m, 0, message.length);
+		System.arraycopy(koniec, 0, m, message.length, koniec.length);
 		try {
 			out.write(m);
 		} catch (IOException e) {
