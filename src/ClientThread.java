@@ -7,7 +7,7 @@ import java.net.Socket;
 
 import javax.swing.JOptionPane;
 
-// thread che gestisce la comunicazione che permette conessione client-server
+// thread che gestisce la comunicazione che permette connessione client-server
 public class ClientThread extends Thread {
 
 	private final Socket socket;
@@ -65,19 +65,19 @@ public class ClientThread extends Thread {
 					Main.window = new GameWindow(false);
 					System.out.println("È stata creata una finestra");
 				} else if (response[0] == 7) {
-					byte[] wyniki = Main.window.getPanel().getScores();
+					byte[] risultati = Main.window.getPanel().getScores();
 					if (response.length == 2) {
 						JOptionPane.showMessageDialog(Main.window, "Fine della partita - Avversario eliminato");
-					} else if (wyniki[0] == wyniki[1])
+					} else if (risultati[0] == risultati[1])
 						JOptionPane.showMessageDialog(Main.window, "Fine della partita - pareggio");
 					else {
 						if (Main.window.getPanel().giocatore == 2) {
-							if (wyniki[0] > wyniki[1])
+							if (risultati[0] > risultati[1])
 								JOptionPane.showMessageDialog(Main.window, "Fine della partita - vittoria");
 							else
 								JOptionPane.showMessageDialog(Main.window, "Fine della partita - perdita");
 						} else {
-							if (wyniki[0] > wyniki[1])
+							if (risultati[0] > risultati[1])
 								JOptionPane.showMessageDialog(Main.window, "Fine della partita - perdita");
 							else
 								JOptionPane.showMessageDialog(Main.window, "Fine della partita - vittoria");
@@ -116,10 +116,10 @@ public class ClientThread extends Thread {
 
 	// metodo per inviare messaggio al server aggiungendo i caratteri di fine riga
 	public void send(byte[] message) {
-		byte[] koniec = "\r\n".getBytes();
-		byte[] m = new byte[message.length + koniec.length];
+		byte[] fine = "\r\n".getBytes();
+		byte[] m = new byte[message.length + fine.length];
 		System.arraycopy(message, 0, m, 0, message.length);
-		System.arraycopy(koniec, 0, m, message.length, koniec.length);
+		System.arraycopy(fine, 0, m, message.length, fine.length);
 		try {
 			out.write(m);
 		} catch (IOException e) {
