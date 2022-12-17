@@ -13,7 +13,7 @@ public class GameWindow extends JFrame {
     public JLabel label, label2;    // etichette punteggio
 
     public GameWindow(boolean nero) {     // creo la finestra di gioco
-        System.out.println("Tworzenie okna gry");
+        System.out.println("Creazione finestra di gioco");
         setTitle("Othello");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
