@@ -136,8 +136,6 @@ public class GameWindow extends JFrame {
         c.gridy = 2;
         contentPane.add(scrollPane, c);
 
-        //c.anchor = GridBagConstraints.FIRST_LINE_END;
-
         setContentPane(contentPane);
         setSize(600, 500);
         setVisible(true);
