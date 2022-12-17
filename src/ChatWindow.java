@@ -12,17 +12,14 @@ import javax.swing.text.StyleContext;
  *
  */
 public class ChatWindow extends JTextPane {
-	private Color a = Color.GREEN, b = Color.BLACK;
-	//private boolean aktywny = false;
-	//private JScrollPane scrollbar;
-	
+	private final Color a = Color.GREEN;
+	private final Color b = Color.BLACK;
+
 	/** Tworzy obiekt wyświetlający chat
 	 * 
 	 */
 	public ChatWindow() {
 		setBackground(Color.LIGHT_GRAY);
-		/*for (int i=0; i<100; i++)
-			wyswietlWiadomosc("Przykładowy tekst coś tam coś tam",b);*/
 		this.setPreferredSize(new Dimension(100,500));
 		this.setMaximumSize(new Dimension(200,500));
 		this.setEditable(false);
@@ -45,10 +42,7 @@ public class ChatWindow extends JTextPane {
 	        StyleContext sc = StyleContext.getDefaultStyleContext();
 	        AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, c);
 
-	        //aset = sc.addAttribute(aset, StyleConstants.FontFamily, "Lucida Console");
-	        //aset = sc.addAttribute(aset, StyleConstants.Alignment, StyleConstants.ALIGN_JUSTIFIED);
-
-	        int len = getDocument().getLength();
+		int len = getDocument().getLength();
 	        setCaretPosition(len);
 	        setCharacterAttributes(aset, false);
 	        replaceSelection(msg+'\n');
@@ -62,16 +56,6 @@ public class ChatWindow extends JTextPane {
 		//aktywny = true;
 		setBackground(Color.WHITE);
 	}
-	
-	/** Ustawia tło na szare
-	 * 
-	 */
-	public void dezaktywuj() {
-		//aktywny = false;
-		setBackground(Color.LIGHT_GRAY);
-	}
-	
-	
-	
-	
+
+
 }
