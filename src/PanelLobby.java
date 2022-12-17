@@ -22,9 +22,9 @@ public class PanelLobby extends JPanel {
                 return false;
             }
         };
-        dtm.addColumn("Nr");
-        dtm.addColumn("Nick");
-        dtm.addColumn("W grze");
+        dtm.addColumn("Numero");
+        dtm.addColumn("Nickname");
+        dtm.addColumn("In gioco"); // 0 - no, 1 - si
         table = new JTable(dtm);
         JScrollPane tab = new JScrollPane(table, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
