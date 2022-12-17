@@ -105,8 +105,8 @@ public class ClientThread extends Thread {
 				out.close();
 				socket.close();
 				System.out.println("La presa è stata chiusa");
-				if (Main.oknoLobby != null)
-					Main.oknoLobby.dispatchEvent(new WindowEvent(Main.oknoLobby, WindowEvent.WINDOW_CLOSING));
+				if (Main.windowLobby != null)
+					Main.windowLobby.dispatchEvent(new WindowEvent(Main.windowLobby, WindowEvent.WINDOW_CLOSING));
 				if (Main.okno != null)
 					Main.okno.dispatchEvent(new WindowEvent(Main.okno, WindowEvent.WINDOW_CLOSING));
 			} catch (IOException e) {
@@ -128,8 +128,8 @@ public class ClientThread extends Thread {
 		} catch (IOException e) {
 			System.out.println("IOException");
 			prossimo = false;
-			if (Main.oknoLobby != null)
-				Main.oknoLobby.dispatchEvent(new WindowEvent(Main.oknoLobby, WindowEvent.WINDOW_CLOSING));
+			if (Main.windowLobby != null)
+				Main.windowLobby.dispatchEvent(new WindowEvent(Main.windowLobby, WindowEvent.WINDOW_CLOSING));
 			if (Main.okno != null)
 				Main.okno.dispatchEvent(new WindowEvent(Main.okno, WindowEvent.WINDOW_CLOSING));
 		}

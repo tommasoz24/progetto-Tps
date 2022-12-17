@@ -9,7 +9,7 @@ public class Main {
 
     static public GameWindow okno;
 
-    static public JFrame oknoLobby;
+    static public JFrame windowLobby;
 
     static public ClientThread clientThread; // thread cliente
 
