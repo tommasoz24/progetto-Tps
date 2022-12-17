@@ -51,17 +51,17 @@ public class PanelLobby extends JPanel {
 
         JPanel a = new JPanel();
         a.setLayout(new FlowLayout());
-        JButton button = new JButton("Odśwież");
+        JButton button = new JButton("Ricarica");
         button.addActionListener(e -> requestTableUpdate());
 
-        JButton button2 = new JButton("Graj");
+        JButton button2 = new JButton("Gioca");
         button2.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row != -1 && ((String) table.getValueAt(row, 1)).compareTo(Main.name) != 0 && (byte) table.getValueAt(row, 2) != 1) {
                 try {
                     String z = table.getValueAt(row, 1).toString();
-                    System.out.println("Wywołanie graj() z arg " + z);
-                    graj(z);
+                    System.out.println("Chiamo la funzione play() con attributo" + z);
+                    play(z);
                 } catch (NumberFormatException nfe) {
                     nfe.printStackTrace();
                 }
@@ -69,17 +69,15 @@ public class PanelLobby extends JPanel {
         });
         a.add(button);
         a.add(button2);
-        //button2.setEnabled(false);
         this.add(tab);
         this.add(a);
         requestTableUpdate();
     }
 
-    /**
-     * Usuwa obecną zawartość tabeli zastępując ją nową zawartością
-     *
-     * @param s Tablica dwuwymiarowa (rzędy i kolumny) zawierająca zawartość tabeli
-     */
+
+    // richiede al server di aggiornare la tabella
+
+
     public void updateTable(Object[][] s) {
         this.s = s;
         int size = dtm.getRowCount();
@@ -89,9 +87,7 @@ public class PanelLobby extends JPanel {
         repaint();
     }
 
-    /**
-     * Wysyła, za pośrednictwem wątku ClientThread, prośbę o zaaktualizowanie tabeli połączonych użytkowników
-     */
+    // invio con in ClientThread la richiesta di aggiornamento della tabella
     public void requestTableUpdate() {
         byte[] m = {0};
         //try {
@@ -107,7 +103,7 @@ public class PanelLobby extends JPanel {
      *
      * @param a Nick gracza, z którym ma rozpocząć się gra
      */
-    public void graj(String a) {
+    public void play(String a) {
         byte[] m = new byte[a.length() + 1];
         byte[] b = a.getBytes();
         System.arraycopy(b, 0, m, 1, a.length());
