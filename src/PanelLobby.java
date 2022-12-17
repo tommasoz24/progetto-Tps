@@ -90,29 +90,15 @@ public class PanelLobby extends JPanel {
     // invio con in ClientThread la richiesta di aggiornamento della tabella
     public void requestTableUpdate() {
         byte[] m = {0};
-        //try {
         Main.clientThread.send(m);
-        //} catch (IOException e) {
-        // TODO Auto-generated catch block
-        //	e.printStackTrace();
-        //}
     }
 
-    /**
-     * Wysyła, za pośrednictwem wątku ClientThread, prośbę o rozpoczęcie gry z odpowiednim graczem
-     *
-     * @param a Nick gracza, z którym ma rozpocząć się gra
-     */
-    public void play(String a) {
+
+    public void play(String a) {    // invio la richiesta di avvio di una partita al giocatore selezionato
         byte[] m = new byte[a.length() + 1];
         byte[] b = a.getBytes();
         System.arraycopy(b, 0, m, 1, a.length());
         m[0] = 1;
-        //try {
         Main.clientThread.send(m);
-        //} catch (IOException e) {
-        // TODO Auto-generated catch block
-        //	e.printStackTrace();
-        //}
     }
 }
