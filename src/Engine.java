@@ -12,7 +12,7 @@ public class Engine {
 
     public Socket socket, socket2;
     private OutputStream out, out2;
-    private final String name;
+    private final String name;      // nome del giocatore
     private final String name2;
 
     public int gira = 1;
