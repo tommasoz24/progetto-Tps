@@ -44,17 +44,17 @@ public class Main {
 				ip = localhost.getText();
 				name = username.getText();
 			}
-			Socket polaczenie = new Socket(ip, 2020);
-			clientThread = new ClientThread(polaczenie);
+			Socket collegamento = new Socket(ip, 2020);
+			clientThread = new ClientThread(collegamento);
 			clientThread.start();
 			clientThread.send(name.getBytes());
-			JFrame oknoLobby = new JFrame();
-			oknoLobby.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-			oknoLobby.setTitle("Lobby");
-			oknoLobby.setSize(400, 200);
+			JFrame lobbyFrame = new JFrame();
+			lobbyFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+			lobbyFrame.setTitle("Lobby");
+			lobbyFrame.setSize(400, 200);
 			pl = new PanelLobby();
-			oknoLobby.setContentPane(pl);
-			oknoLobby.setVisible(true);
+			lobbyFrame.setContentPane(pl);
+			lobbyFrame.setVisible(true);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
