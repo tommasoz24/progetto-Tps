@@ -187,7 +187,6 @@ public class Engine {
 
     /**
      * Wysłanie do klientów informacji do kogo należy aktualna tura
-     *
      */
     public void turaInfo() throws IOException {
         byte[] message = new byte[fine.length + 1];
