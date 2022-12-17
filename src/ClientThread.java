@@ -48,12 +48,12 @@ public class ClientThread extends Thread {
 					stan = new byte[64];
 					for (int i = 0; i < stan.length; i++)
 						stan[i] = response[i + 1];
-					Main.okno.getPlansza().updatePlansza(stan);
+					Main.okno.getPanel().updatePlansza(stan);
 				} else if (response[0] == 2) {
 					System.out.println("Messaggio ricevuto - è il mio turno");
-					Main.okno.getPlansza().przydzielTure();
+					Main.okno.getPanel().przydzielTure();
 				} else if (response[0] == 3) {
-					Main.okno.getPlansza().zabierzTure();
+					Main.okno.getPanel().zabierzTure();
 				} else if (response[0] == 4) {
 					Main.name = line.substring(1);
 				} else if (response[0] == 5) {
@@ -66,13 +66,13 @@ public class ClientThread extends Thread {
 					Main.okno = new GameWindow(false);
 					System.out.println("È stata creata una finestra");
 				} else if (response[0] == 7) {
-					byte[] wyniki = Main.okno.getPlansza().getScores();
+					byte[] wyniki = Main.okno.getPanel().getScores();
 					if (response.length == 2) {
 						JOptionPane.showMessageDialog(Main.okno, "Fine della partita - Avversario eliminato");
 					} else if (wyniki[0] == wyniki[1])
 						JOptionPane.showMessageDialog(Main.okno, "Fine della partita - pareggio");
 					else {
-						if (Main.okno.getPlansza().gracz == 2) {
+						if (Main.okno.getPanel().gracz == 2) {
 							if (wyniki[0] > wyniki[1])
 								JOptionPane.showMessageDialog(Main.okno, "Fine della partita - vittoria");
 							else

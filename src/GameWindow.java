@@ -8,12 +8,9 @@ import java.awt.event.KeyListener;
 public class GameWindow extends JFrame {
 
     public JPanel contentPane;
-    public PanelPlansza plansza;        // pannello con la scacchiera
+    public PanelPlansza panel;    // pannello con la scacchiera
     public ChatWindow chat;       // pannello con la chat
-    /**
-     * Etykiety wyświetlające aktualny wynik
-     */
-    public JLabel label, label2;
+    public JLabel label, label2;    // etichette punteggio
 
     /**
      * Tworzy okno gry Reversi
@@ -70,7 +67,7 @@ public class GameWindow extends JFrame {
         c.gridy = 1;
         contentPane.add(label2, c);
 
-        plansza = new PanelPlansza(czarny);
+        panel = new PanelPlansza(czarny);
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 0.75;
         c.weighty = 1;
@@ -78,7 +75,7 @@ public class GameWindow extends JFrame {
         c.gridheight = 3;
         c.gridx = 1;
         c.gridy = 0;
-        contentPane.add(plansza, c);
+        contentPane.add(panel, c);
 
         chat = new ChatWindow();
         JScrollPane czatIscrollbar = new JScrollPane(chat, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -167,8 +164,8 @@ public class GameWindow extends JFrame {
      *
      * @return referencję do planszy aktualnej gry
      */
-    public PanelPlansza getPlansza() {
-        return plansza;
+    public PanelPlansza getPanel() {
+        return panel;
     }
 
     /**
