@@ -48,51 +48,51 @@ public class ClientThread extends Thread {
 					stan = new byte[64];
 					for (int i = 0; i < stan.length; i++)
 						stan[i] = response[i + 1];
-					Main.okno.getPanel().updatePlansza(stan);
+					Main.window.getPanel().updatePlansza(stan);
 				} else if (response[0] == 2) {
 					System.out.println("Messaggio ricevuto - è il mio turno");
-					Main.okno.getPanel().przydzielTure();
+					Main.window.getPanel().przydzielTure();
 				} else if (response[0] == 3) {
-					Main.okno.getPanel().zabierzTure();
+					Main.window.getPanel().zabierzTure();
 				} else if (response[0] == 4) {
 					Main.name = line.substring(1);
 				} else if (response[0] == 5) {
 					System.out.println("Richiesta di creazione di una finestra di gioco - Nero");
-					Main.okno = new GameWindow(true);
+					Main.window = new GameWindow(true);
 					System.out.println("È stata creata una finestra");
 
 				} else if (response[0] == 6) {
 					System.out.println("Richiesta di creazione di una finestra di gioco - Bianco");
-					Main.okno = new GameWindow(false);
+					Main.window = new GameWindow(false);
 					System.out.println("È stata creata una finestra");
 				} else if (response[0] == 7) {
-					byte[] wyniki = Main.okno.getPanel().getScores();
+					byte[] wyniki = Main.window.getPanel().getScores();
 					if (response.length == 2) {
-						JOptionPane.showMessageDialog(Main.okno, "Fine della partita - Avversario eliminato");
+						JOptionPane.showMessageDialog(Main.window, "Fine della partita - Avversario eliminato");
 					} else if (wyniki[0] == wyniki[1])
-						JOptionPane.showMessageDialog(Main.okno, "Fine della partita - pareggio");
+						JOptionPane.showMessageDialog(Main.window, "Fine della partita - pareggio");
 					else {
-						if (Main.okno.getPanel().gracz == 2) {
+						if (Main.window.getPanel().giocatore == 2) {
 							if (wyniki[0] > wyniki[1])
-								JOptionPane.showMessageDialog(Main.okno, "Fine della partita - vittoria");
+								JOptionPane.showMessageDialog(Main.window, "Fine della partita - vittoria");
 							else
-								JOptionPane.showMessageDialog(Main.okno, "Fine della partita - perdita");
+								JOptionPane.showMessageDialog(Main.window, "Fine della partita - perdita");
 						} else {
 							if (wyniki[0] > wyniki[1])
-								JOptionPane.showMessageDialog(Main.okno, "Fine della partita - perdita");
+								JOptionPane.showMessageDialog(Main.window, "Fine della partita - perdita");
 							else
-								JOptionPane.showMessageDialog(Main.okno, "Fine della partita - vittoria");
+								JOptionPane.showMessageDialog(Main.window, "Fine della partita - vittoria");
 						}
 					}
 
-					Main.okno.close();
+					Main.window.close();
 				} else {
 					System.out.println("Messaggio pronto per la visualizzazione: ");
 					char[] a = new char[response.length];
 					for (int i = 0; i < response.length; i++)
 						a[i] = (char) response[i];
 					System.out.println(new String(a));
-					Main.okno.chat.wyswietlWiadomosc(new String(a));
+					Main.window.chat.wyswietlWiadomosc(new String(a));
 				}
 
 			}
@@ -107,8 +107,8 @@ public class ClientThread extends Thread {
 				System.out.println("La presa è stata chiusa");
 				if (Main.windowLobby != null)
 					Main.windowLobby.dispatchEvent(new WindowEvent(Main.windowLobby, WindowEvent.WINDOW_CLOSING));
-				if (Main.okno != null)
-					Main.okno.dispatchEvent(new WindowEvent(Main.okno, WindowEvent.WINDOW_CLOSING));
+				if (Main.window != null)
+					Main.window.dispatchEvent(new WindowEvent(Main.window, WindowEvent.WINDOW_CLOSING));
 			} catch (IOException e) {
 				System.out.println("Server già chiuso in precedenza");
 			}
@@ -130,8 +130,8 @@ public class ClientThread extends Thread {
 			prossimo = false;
 			if (Main.windowLobby != null)
 				Main.windowLobby.dispatchEvent(new WindowEvent(Main.windowLobby, WindowEvent.WINDOW_CLOSING));
-			if (Main.okno != null)
-				Main.okno.dispatchEvent(new WindowEvent(Main.okno, WindowEvent.WINDOW_CLOSING));
+			if (Main.window != null)
+				Main.window.dispatchEvent(new WindowEvent(Main.window, WindowEvent.WINDOW_CLOSING));
 		}
 		System.out.println("Messaggio inviato");
 	}

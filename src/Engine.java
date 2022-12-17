@@ -265,7 +265,7 @@ public class Engine {
     /**
      * Dostarcza informacji o graczu wygrywającym
      *
-     * @return Wartość zmienej gracz,gracz2 (oznaczającej kolor pionków zwycięzcy) lub 0 gdy jest remis
+     * @return Wartość zmienej giocatore,gracz2 (oznaczającej kolor pionków zwycięzcy) lub 0 gdy jest remis
      */
     public byte ktoWygral() {
         int punkty1 = 0, punkty2 = 0;
@@ -445,7 +445,7 @@ public class Engine {
         if (tak && stan[boardSize * rzad + i] == gracz) {
             for (i++; i <= kolumna; i++) {
                 stan[boardSize * rzad + i] = gracz;
-                //wykonajRuch(gracz, rzad, (byte) i);
+                //wykonajRuch(giocatore, rzad, (byte) i);
             }
         }
         // Sprawdzam prawą stronę
@@ -457,7 +457,7 @@ public class Engine {
         if (tak && stan[boardSize * rzad + i] == gracz) {
             for (i--; i >= kolumna; i--) {
                 stan[boardSize * rzad + i] = gracz;
-                //wykonajRuch(gracz, rzad, (byte) i);
+                //wykonajRuch(giocatore, rzad, (byte) i);
             }
         }
         // Sprawdzam górę
@@ -469,7 +469,7 @@ public class Engine {
         if (tak && stan[boardSize * i + kolumna] == gracz) {
             for (i++; i <= rzad; i++) {
                 stan[boardSize * i + kolumna] = gracz;
-                //wykonajRuch(gracz, (byte) i, kolumna);
+                //wykonajRuch(giocatore, (byte) i, kolumna);
             }
         }
         // Sprawdzam dół
@@ -481,7 +481,7 @@ public class Engine {
         if (tak && stan[boardSize * i + kolumna] == gracz) {
             for (i--; i >= rzad; i--) {
                 stan[boardSize * i + kolumna] = gracz;
-                //wykonajRuch(gracz, (byte) i, kolumna);
+                //wykonajRuch(giocatore, (byte) i, kolumna);
             }
         }
         // Sprawdzam lewą górną przekątną
@@ -494,7 +494,7 @@ public class Engine {
             if (stan[i] == gracz) {
                 for (i += boardSize + 1; i <= boardSize * rzad + kolumna; i += boardSize + 1) {
                     stan[i] = gracz;
-                    //wykonajRuch(gracz, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
+                    //wykonajRuch(giocatore, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
                 }
             }
         }
@@ -508,7 +508,7 @@ public class Engine {
             if (stan[i] == gracz) {
                 for (i += boardSize - 1; i <= boardSize * rzad + kolumna; i += boardSize - 1) {
                     stan[i] = gracz;
-                    //wykonajRuch(gracz, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
+                    //wykonajRuch(giocatore, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
                 }
             }
         }
@@ -522,7 +522,7 @@ public class Engine {
             if (stan[i] == gracz) {
                 for (i -= boardSize - 1; i >= boardSize * rzad + kolumna; i -= boardSize - 1) {
                     stan[i] = gracz;
-                    //wykonajRuch(gracz, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
+                    //wykonajRuch(giocatore, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
                 }
             }
         }
@@ -536,7 +536,7 @@ public class Engine {
             if (stan[i] == gracz) {
                 for (i -= boardSize + 1; i >= boardSize * rzad + kolumna; i -= boardSize + 1) {
                     stan[i] = gracz;
-                    //wykonajRuch(gracz, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
+                    //wykonajRuch(giocatore, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
                 }
             }
         }

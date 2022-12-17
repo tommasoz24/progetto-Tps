@@ -8,7 +8,7 @@ import java.awt.event.KeyListener;
 public class GameWindow extends JFrame {
 
     public JPanel contentPane;
-    public PanelPlansza panel;    // pannello con la scacchiera
+    public PanelBoard panel;    // pannello con la scacchiera
     public ChatWindow chat;       // pannello con la chat
     public JLabel label, label2;    // etichette punteggio
 
@@ -58,7 +58,7 @@ public class GameWindow extends JFrame {
         c.gridy = 1;
         contentPane.add(label2, c);
 
-        panel = new PanelPlansza(nero);
+        panel = new PanelBoard(nero);
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 0.75;
         c.weighty = 1;
@@ -149,7 +149,7 @@ public class GameWindow extends JFrame {
      *
      * @return referencję do planszy aktualnej gry
      */
-    public PanelPlansza getPanel() {
+    public PanelBoard getPanel() {
         return panel;
     }
 
@@ -183,7 +183,7 @@ public class GameWindow extends JFrame {
     }
 
     /**
-     * Zamyka okno
+     * Zamyka window
      */
     public void close() {
         setVisible(false);

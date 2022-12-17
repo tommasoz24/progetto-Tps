@@ -31,7 +31,7 @@ public class ChatWindow extends JTextPane {
 	}
 	
 	/** Wyświetla wiadomość na chat zmieniając kolor na:
-	 * Zielony, gdy wiadomość poprzedza nick klienta, u którego otwarte jest okno
+	 * Zielony, gdy wiadomość poprzedza nick klienta, u którego otwarte jest window
 	 * Czarny w przeciwnym wypadku
 	 * @param msg Treść wiadomości
 	 */

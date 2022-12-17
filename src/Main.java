@@ -7,7 +7,7 @@ import java.net.UnknownHostException;
 // Client Main
 public class Main {
 
-    static public GameWindow okno;
+    static public GameWindow window;
 
     static public JFrame windowLobby;
 
