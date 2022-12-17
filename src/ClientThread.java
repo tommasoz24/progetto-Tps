@@ -36,7 +36,7 @@ public class ClientThread extends Thread {
 				System.out.println("Messaggio ricevuto");
 				if (response[0] == 0) {
 					byte size = response[1];
-					System.out.println("Utenti del tavolo di ricezione");
+					System.out.println("Utenti connessi: " + size);
 					Object[][] s = new Object[size][3];
 					for (byte i = 0; i < size; i++) {
 						s[i][0] = i + 1;
