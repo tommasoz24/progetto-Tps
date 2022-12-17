@@ -7,47 +7,57 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
-
-/** Klasa zawierająca metodę main. Uruchamianie programu po stronie klienta.
- * @author Bartus
+/**
+ * Classe che contiene il metodo main. Esecuzione di un programma lato client.
+ * 
+ * @autore Bartus
  *
  */
 public class Main {
-	
-	//static private boolean host = !true;
-	/** Obiekt okna, które używane jest do rozgrywki
+
+	// static private boolean host = !true;
+	/**
+	 * Obiekt okna, które używane jest do rozgrywki
 	 * 
 	 */
 	static public OknoGra okno;
-	/** Obiekt okna używanego do wyświetlania lobby
+	/**
+	 * Obiekt okna używanego do wyświetlania lobby
 	 * 
 	 */
 	static public JFrame oknoLobby;
 	/**
 	 *
 	 */
-	static public ClientThread clientThread;		// thread cliente
-	/** Obiekt wątku menedżera połączeń
+	static public ClientThread clientThread; // thread cliente
+	/**
+	 * Obiekt wątku menedżera połączeń
 	 *
 	 */
-	static public ServerLobbyConManager lobby;
-	/** Lista działających wątków komunikacyjnych po stronie serwera
+	static public SerwerLobbyConManager lobby;
+	/**
+	 * Lista działających wątków komunikacyjnych po stronie serwera
 	 *
 	 */
-	//static public List<ServerLobbyListener> listeners = new ArrayList<>(10);
-	/** Panel należący do okna lobby
-	 * 
+	// static public List<SerwerLobbyListener> listeners = new ArrayList<>(10);
+	/**
+	 * Panel należący do okna lobby
 	 */
 	static public PanelLobby pl;
-	/** Nick gracza
+	/**
+	 * Nick gracza
 	 * 
 	 */
 	static public String name = "Gracz";
-	/** IP/domena serwera
+	/**
+	 * IP/domena serwera
 	 * 
 	 */
 	static public String ip;
-	/** Metoda main programu
+
+	/**
+	 * Metoda main programu
+	 * 
 	 * @param args Brak użycia w programie
 	 */
 	public static void main(String[] args) {
@@ -56,17 +66,18 @@ public class Main {
 			JTextField adres = new JTextField("localhost");
 			JTextField nick = new JTextField("Gracz");
 			Object[] message = {
-			    "Adres:", adres,
-			    "Nick:", nick
+					"Adres:", adres,
+					"Nick:", nick
 			};
-			int option = JOptionPane.showConfirmDialog(null,message,"Połącz z serwerem", JOptionPane.OK_CANCEL_OPTION);
+			int option = JOptionPane.showConfirmDialog(null, message, "Połącz z serwerem",
+					JOptionPane.OK_CANCEL_OPTION);
 			if (option == JOptionPane.CANCEL_OPTION)
 				System.exit(0);
 			else {
 				ip = adres.getText();
 				name = nick.getText();
 			}
-			Socket polaczenie = new Socket(ip,2020);
+			Socket polaczenie = new Socket(ip, 2020);
 			clientThread = new ClientThread(polaczenie);
 			clientThread.start();
 			clientThread.send(name.getBytes());
@@ -81,7 +92,7 @@ public class Main {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			JOptionPane.showMessageDialog(null,"Nie udało się połączyć z serwerem");
+			JOptionPane.showMessageDialog(null, "Nie udało się połączyć z serwerem");
 		}
 	}
 
