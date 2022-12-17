@@ -42,7 +42,6 @@ public class Main {
 	// static public List<SerwerLobbyListener> listeners = new ArrayList<>(10);
 	/**
 	 * Panel należący do okna lobby
-	 * 
 	 */
 	static public PanelLobby pl;
 	/**
