@@ -180,9 +180,6 @@ public class GameWindow extends JFrame {
         }
     }
 
-    /**
-     * Zamyka window
-     */
     public void close() {
         setVisible(false);
         this.dispose();
