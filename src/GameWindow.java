@@ -12,16 +12,10 @@ public class GameWindow extends JFrame {
     public ChatWindow chat;       // pannello con la chat
     public JLabel label, label2;    // etichette punteggio
 
-    /**
-     * Tworzy okno gry Reversi
-     *
-     * @param czarny Kolor pionków gracza tworzącego okno: true - czarny, false - biały
-     */
-    public GameWindow(boolean czarny) {
+    public GameWindow(boolean nero) {     // creo la finestra di gioco
         System.out.println("Tworzenie okna gry");
-        setTitle("Reversi");
+        setTitle("Othello");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        //setBounds(200,200,500,500);
 
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -30,9 +24,8 @@ public class GameWindow extends JFrame {
         c.insets = new Insets(5, 5, 5, 5);
 
         label = new JLabel("22");
-        //label.setBorder(BorderFactory.createLineBorder(Color.BLUE, 1));
-        label.setBorder(new CompoundBorder( // sets two borders
-                BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK), // outer border
+        label.setBorder(new CompoundBorder( // setta i due bordi
+                BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK), // bordo esterno
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
         label.setForeground(Color.BLACK);
         label.setBackground(Color.GREEN);
@@ -43,9 +36,7 @@ public class GameWindow extends JFrame {
         label.setMinimumSize(new Dimension(30, 30));
         label.setMaximumSize(new Dimension(30, 30));
         label2 = new JLabel("22");
-        //label2.setBorder(BorderFactory.createLineBorder(Color.BLUE, 1));
-        label2.setBorder(new CompoundBorder( // sets two borders
-                BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK), // outer border
+        label2.setBorder(new CompoundBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK), // bordo interno
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
         label2.setForeground(Color.WHITE);
         label2.setBackground(Color.GREEN);
@@ -67,7 +58,7 @@ public class GameWindow extends JFrame {
         c.gridy = 1;
         contentPane.add(label2, c);
 
-        panel = new PanelPlansza(czarny);
+        panel = new PanelPlansza(nero);
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 0.75;
         c.weighty = 1;
@@ -134,8 +125,6 @@ public class GameWindow extends JFrame {
             }
         });
         tA.setLineWrap(true);
-        //tA.setPreferredSize(new Dimension(100,50));
-        //tA.setMaximumSize(new Dimension(200,100));
         JScrollPane scrollPane = new JScrollPane(tA, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setPreferredSize(new Dimension(100, 50));
         scrollPane.setMaximumSize(new Dimension(200, 100));
@@ -154,9 +143,6 @@ public class GameWindow extends JFrame {
         setSize(600, 500);
         setVisible(true);
 
-        //scrollbar.setViewportBorder(new EmptyBorder(5,5,5,5));
-        //scrollbar.setViewportView(chat);
-        //chat.wyswietlWiadomosc("ASDASDADS");
     }
 
     /**
