@@ -110,16 +110,12 @@ public class ClientThread extends Thread {
 				if (Main.okno != null)
 					Main.okno.dispatchEvent(new WindowEvent(Main.okno, WindowEvent.WINDOW_CLOSING));
 			} catch (IOException e) {
-				System.out.println("Già chiuso in precedenza");
+				System.out.println("Server già chiuso in precedenza");
 			}
 		}
 	}
 
-	/**
-	 * Invia un messaggio al server aggiungendo i caratteri di fine riga.
-	 * 
-	 * @param messaggio Messaggio dal client al server.
-	 */
+	// metodo per inviare messaggio al server aggiungendo i caratteri di fine riga
 	public void send(byte[] message) {
 		byte[] koniec = "\r\n".getBytes();
 		byte[] m = new byte[message.length + koniec.length];
@@ -130,7 +126,6 @@ public class ClientThread extends Thread {
 		try {
 			out.write(m);
 		} catch (IOException e) {
-			// e.printStackTrace();
 			System.out.println("IOException");
 			prossimo = false;
 			if (Main.oknoLobby != null)
