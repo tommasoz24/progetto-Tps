@@ -80,20 +80,7 @@ public class GameWindow extends JFrame {
         c.gridy = 0;
         contentPane.add(chatScrollbar, c);
 
-        JTextArea tA = new JTextArea();/*{
-			public void keyPressed(KeyEvent e) {
-	            System.out.println("test");
-                if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-                	e.consume();
-                	try {
-						Main.clientThread.send(this.getText().getBytes());
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} 
-                }
-			}
-		};*/
+        JTextArea tA = new JTextArea();
         tA.addKeyListener(new KeyListener() {
 
             @Override

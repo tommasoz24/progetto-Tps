@@ -19,21 +19,21 @@ public class Engine {
     private final int boardSize = 8;
     private final List<Byte> consenti1 = new ArrayList<>(20);
     private final List<Byte> consenti2 = new ArrayList<>(20);
-    private byte[] stan;
+    private byte[] stato;
     private final byte[] fine = "\r\n".getBytes();
     byte giocatore, giocatore2 = 1;
     public boolean ended = false;
-    ServerLobbyListener as;
-    ServerLobbyListener bs;
+    ServerLobbyListener serverLobbyListener1;
+    ServerLobbyListener serverLobbyListener2;
 
-    public Engine(ServerLobbyListener a, ServerLobbyListener b, Color color1) {
-        System.out.println("Motore in funzione");
-        this.as = a;
-        this.bs = b;
-        socket = a.client;
-        socket2 = b.client;
-        name = a.username;
-        name2 = b.username;
+    public Engine(ServerLobbyListener serverLobbyListener1, ServerLobbyListener serverLobbyListener2, Color color1) {
+        System.out.println("Engine in funzione");
+        this.serverLobbyListener1 = serverLobbyListener1;
+        this.serverLobbyListener2 = serverLobbyListener2;
+        socket = serverLobbyListener1.client;
+        socket2 = serverLobbyListener2.client;
+        name = serverLobbyListener1.username;
+        name2 = serverLobbyListener2.username;
         System.out.println(name + " vs " + name2);
         if (color1 == Color.BLACK) giocatore = 2;
         else {
@@ -45,18 +45,18 @@ public class Engine {
             out = socket.getOutputStream();
             out2 = socket2.getOutputStream();
             System.out.println("START server");
-            stan = new byte[boardSize * boardSize];
+            stato = new byte[boardSize * boardSize];
             for (int i = 0; i < 50; i++)
-                stan[i] = 1;
-            stan[27] = 1;
-            stan[28] = 2;
-            stan[35] = 2;
-            stan[36] = 1;
-            byte[] message = new byte[stan.length + fine.length + 1];
+                stato[i] = 1;
+            stato[27] = 1;
+            stato[28] = 2;
+            stato[35] = 2;
+            stato[36] = 1;
+            byte[] message = new byte[stato.length + fine.length + 1];
             message[0] = 1;
-            System.arraycopy(stan, 0, message, 1, stan.length);
+            System.arraycopy(stato, 0, message, 1, stato.length);
             for (int i = 0; i < fine.length; i++)
-                message[stan.length + 1 + i] = fine[i];
+                message[stato.length + 1 + i] = fine[i];
             out.write(message);
             out2.write(message);
             turnoInfo();
@@ -182,14 +182,14 @@ public class Engine {
             message[0] = 2; // 2 - Invio informazioni sul turno
             System.arraycopy(fine, 0, message, 1, fine.length);
             out.write(message);
-            System.out.println("Przesłano info, że tura pierwszego");
+            System.out.println("informazione primo round");
             message[0] = 3; // 3 - Invio informazioni sul turno
             out2.write(message);
         } else {
             message[0] = 2; // 2 - Invio informazioni sul turno
             System.arraycopy(fine, 0, message, 1, fine.length);
             out2.write(message);
-            System.out.println("Przesłano info, że tura pierwszego");
+            System.out.println("informazione primo round");
             message[0] = 3; // 3 - Invio informazioni sul turno
             out.write(message);
         }
@@ -250,7 +250,7 @@ public class Engine {
     // fornisce informazioni sul giocatore vincente
     public byte trovaVincitore() {
         int punti1 = 0, punti2 = 0;
-        for (byte b : stan) {
+        for (byte b : stato) {
             if (b == giocatore) punti1++;
             else if (b == giocatore2) punti2++;
         }
@@ -261,341 +261,301 @@ public class Engine {
 
     // verifica se la mossa è corretta
     private boolean isMovimentoCorretto(byte g1, byte pareggio, byte column) {
-        if (pareggio >= boardSize || column >= boardSize || stan[pareggio * boardSize + column] != 0)
+        if (pareggio >= boardSize || column >= boardSize || stato[pareggio * boardSize + column] != 0)
             return false;
 
         byte g2 = 1;
         if (g1 == 1) g2 = 2;
-        boolean tak = false;
+        boolean corretto = false;
         int i;
-        // Sprawdzam lewą stronę
+        // Controllo del lato sinistro
         for (i = column - 1; i > 0; i--) {
-            if (stan[boardSize * pareggio + i] == g2) tak = true;
+            if (stato[boardSize * pareggio + i] == g2) corretto = true;
             else break;
         }
-        if (tak && stan[boardSize * pareggio + i] == g1) return true;
-        // Sprawdzam prawą stronę
-        tak = false;
+        if (corretto && stato[boardSize * pareggio + i] == g1) return true;
+        // Controllo del lato destro
+        corretto = false;
         for (i = column + 1; i < boardSize - 1; i++) {
-            if (stan[boardSize * pareggio + i] == g2) tak = true;
+            if (stato[boardSize * pareggio + i] == g2) corretto = true;
             else break;
         }
-        if (tak && stan[boardSize * pareggio + i] == g1) return true;
+        if (corretto && stato[boardSize * pareggio + i] == g1) return true;
         // Sprawdzam górę
-        tak = false;
+        corretto = false;
         for (i = pareggio - 1; i > 0; i--) {
-            if (stan[boardSize * i + column] == g2) tak = true;
+            if (stato[boardSize * i + column] == g2) corretto = true;
             else break;
         }
-        if (tak && stan[boardSize * i + column] == g1) return true;
-        // Sprawdzam dół
-        tak = false;
+        if (corretto && stato[boardSize * i + column] == g1) return true;
+        // Controllo del fondo
+        corretto = false;
         for (i = pareggio + 1; i < boardSize - 1; i++) {
-            if (stan[boardSize * i + column] == g2) tak = true;
+            if (stato[boardSize * i + column] == g2) corretto = true;
             else break;
         }
-        if (tak && stan[boardSize * i + column] == g1) return true;
-        // Sprawdzam lewą górną przekątną
-        tak = false;
+        if (corretto && stato[boardSize * i + column] == g1) return true;
+        // Controllo la diagonale superiore sinistra
+        corretto = false;
         for (i = boardSize * pareggio + column - (boardSize + 1); i > boardSize && (i % boardSize) < ((i + (boardSize + 1)) % boardSize); i -= (boardSize + 1)) {
-            if (stan[i] == g2) tak = true;
+            if (stato[i] == g2) corretto = true;
             else break;
         }
-        if (tak && (i % boardSize) < (i + (boardSize + 1)) % boardSize) {
-            if (stan[i] == g1) return true;
+        if (corretto && (i % boardSize) < (i + (boardSize + 1)) % boardSize) {
+            if (stato[i] == g1) return true;
         }
-        // Sprawdzam prawą górną przekątną
-        tak = false;
+        // Controllo la diagonale superiore destra
+        corretto = false;
         for (i = boardSize * pareggio + column - (boardSize - 1); i > boardSize && (i % boardSize) > ((i + (boardSize - 1)) % boardSize); i -= (boardSize - 1)) {
-            if (stan[i] == g2) tak = true;
+            if (stato[i] == g2) corretto = true;
             else break;
         }
-        if (tak && (i % boardSize) > (i + (boardSize - 1)) % boardSize) {
-            if (stan[i] == g1) return true;
+        if (corretto && (i % boardSize) > (i + (boardSize - 1)) % boardSize) {
+            if (stato[i] == g1) return true;
         }
-        // Sprawdzam lewą dolną przekątną
-        tak = false;
+        // Controllo la diagonale inferiore sinistra
+        corretto = false;
         for (i = boardSize * pareggio + column + (boardSize - 1); i < boardSize * (boardSize - 1) && (i % boardSize) < ((i - (boardSize - 1)) % boardSize); i += (boardSize - 1)) {
-            if (stan[i] == g2) tak = true;
+            if (stato[i] == g2) corretto = true;
             else break;
         }
-        if (tak && (i % boardSize) < (i - (boardSize - 1)) % boardSize) {
-            if (stan[i] == g1) return true;
+        if (corretto && (i % boardSize) < (i - (boardSize - 1)) % boardSize) {
+            if (stato[i] == g1) return true;
         }
-        // Sprawdzam prawą dolną przekątną
-        tak = false;
+        // Controllo la diagonale inferiore destra
+        corretto = false;
         for (i = boardSize * pareggio + column + (boardSize + 1); i < boardSize * (boardSize - 1) && (i % boardSize) > ((i - (boardSize + 1)) % boardSize); i += (boardSize + 1)) {
-            if (stan[i] == g2) tak = true;
+            if (stato[i] == g2) corretto = true;
             else break;
         }
-        if (tak && (i % boardSize) > (i - (boardSize + 1)) % boardSize) {
-            return stan[i] == g1;
+        if (corretto && (i % boardSize) > (i - (boardSize + 1)) % boardSize) {
+            return stato[i] == g1;
         }
         return false;
     }
 
-    /**
-     * Zwraca true, gdy pole sąsiaduje z pionkiem przeciwnika, false gdy sąsiaduje z własnym pionkiem lub nie sąsiaduje z żadnym pionkiem
-     *
-     * @param gracz   Kolor pionków gracza wykonującego ruch (1 - biały, 2 - czarny)
-     * @param rzad    Numer rzędu wybranego pola na planszy
-     * @param kolumna Numer kolumny wybranego pola na planszy
-     * @return true gdy pole sąsiaduje z pionkiem przeciwnika, false w przeciwnym wypadku
-     */
-    private boolean seMosso(byte gracz, byte rzad, byte kolumna) {
-        boolean lewo = false, prawo = false, gora = false, dol = false;
-        byte gracz2 = 1;
-        if (gracz == 1) gracz2 = 2;
 
-        if (kolumna - 1 >= 0) lewo = stan[rzad * boardSize + kolumna - 1] == gracz2;
-        if (kolumna + 1 < boardSize) prawo = stan[rzad * boardSize + kolumna + 1] == gracz2;
-        if (rzad + 1 < boardSize) gora = stan[(rzad + 1) * boardSize + kolumna] == gracz2;
-        if (rzad - 1 >= 0) dol = stan[(rzad - 1) * boardSize + kolumna] == gracz2;
+    private boolean seMosso(byte player, byte row, byte column) {
+        boolean left = false, right = false, top = false, bottom = false;
+        byte player2 = 1;
+        if (player == 1) player2 = 2;
 
-        if (lewo || prawo || gora || dol) return true;
+        if (column - 1 >= 0) left = stato[row * boardSize + column - 1] == player2;
+        if (column + 1 < boardSize) right = stato[row * boardSize + column + 1] == player2;
+        if (row + 1 < boardSize) top = stato[(row + 1) * boardSize + column] == player2;
+        if (row - 1 >= 0) bottom = stato[(row - 1) * boardSize + column] == player2;
 
-        // Sprawdzam lewą górną przekątną
-        for (int i = boardSize * rzad + kolumna - (boardSize + 1); i > boardSize && (i % boardSize) < ((i + (boardSize + 1)) % boardSize); ) {
-            if (stan[i] == gracz2) return true;
+        if (left || right || top || bottom) return true;
+
+        // controllo diagonale sinistra
+        for (int i = boardSize * row + column - (boardSize + 1); i > boardSize && (i % boardSize) < ((i + (boardSize + 1)) % boardSize); ) {
+            if (stato[i] == player2) return true;
             else break;
         }
 
-        // Sprawdzam prawą górną przekątną
-        for (int i = boardSize * rzad + kolumna - (boardSize - 1); i > boardSize && (i % boardSize) > ((i + (boardSize - 1)) % boardSize); ) {
-            if (stan[i] == gracz2) return true;
+        // controllo diagonale destra
+        for (int i = boardSize * row + column - (boardSize - 1); i > boardSize && (i % boardSize) > ((i + (boardSize - 1)) % boardSize); ) {
+            if (stato[i] == player2) return true;
             else break;
         }
 
-        // Sprawdzam lewą dolną przekątną
-        for (int i = boardSize * rzad + kolumna + (boardSize - 1); i < boardSize * (boardSize - 1) && (i % boardSize) < ((i - (boardSize - 1)) % boardSize); ) {
-            if (stan[i] == gracz2) return true;
+        // controllo diagonale inferiore sinistra
+        for (int i = boardSize * row + column + (boardSize - 1); i < boardSize * (boardSize - 1) && (i % boardSize) < ((i - (boardSize - 1)) % boardSize); ) {
+            if (stato[i] == player2) return true;
             else break;
         }
 
-        // Sprawdzam prawą dolną przekątną
-        for (int i = boardSize * rzad + kolumna + (boardSize + 1); i < boardSize * (boardSize - 1) && (i % boardSize) > ((i - (boardSize + 1)) % boardSize); ) {
-            if (stan[i] == gracz2) return true;
+        // controllo diagonale inferiore destra
+        for (int i = boardSize * row + column + (boardSize + 1); i < boardSize * (boardSize - 1) && (i % boardSize) > ((i - (boardSize + 1)) % boardSize); ) {
+            if (stato[i] == player2) return true;
             else break;
         }
 
         return false;
     }
 
-    /**
-     * Wysyła do klientów aktualny stan planszy
-     */
+
     private void inviaStato() {
-        byte[] message = new byte[stan.length + fine.length + 1];
+        byte[] message = new byte[stato.length + fine.length + 1];
         message[0] = 1;
-        System.arraycopy(stan, 0, message, 1, stan.length);
+        System.arraycopy(stato, 0, message, 1, stato.length);
         for (int i = 0; i < fine.length; i++)
-            message[stan.length + 1 + i] = fine[i];
+            message[stato.length + 1 + i] = fine[i];
         try {
             out.write(message);
             out2.write(message);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
 
-    /**
-     * Zmiana stanu planszy po wykonaniu ruchu
-     *
-     * @param gracz   Kolor pionków gracza wykonującego ruch (1 - biały, 2 - czarny)
-     * @param rzad    Numer rzędu wybranego pola na planszy
-     * @param kolumna Numer kolumny wybranego pola na planszy
-     */
-    private void makeMove(byte gracz, byte rzad, byte kolumna) {
-        byte gracz2 = 1;
-        if (gracz == 1) gracz2 = 2;
-        boolean tak = false;
+
+    private void makeMove(byte player, byte row, byte column) {
+        byte player2 = 1;
+        if (player == 1) player2 = 2;
+        boolean isCorrect = false;
         int i;
-        // Sprawdzam lewą stronę
-        for (i = kolumna - 1; i > 0; i--) {
-            if (stan[boardSize * rzad + i] == gracz2) tak = true;
+        // controllo lato sinistro
+        for (i = column - 1; i > 0; i--) {
+            if (stato[boardSize * row + i] == player2) isCorrect = true;
             else break;
         }
-        if (tak && stan[boardSize * rzad + i] == gracz) {
-            for (i++; i <= kolumna; i++) {
-                stan[boardSize * rzad + i] = gracz;
-                //wykonajRuch(gracz, rzad, (byte) i);
+        if (isCorrect && stato[boardSize * row + i] == player) {
+            for (i++; i <= column; i++) {
+                stato[boardSize * row + i] = player;
             }
         }
-        // Sprawdzam prawą stronę
-        tak = false;
-        for (i = kolumna + 1; i < boardSize - 1; i++) {
-            if (stan[boardSize * rzad + i] == gracz2) tak = true;
+        // controllo lato destro
+        isCorrect = false;
+        for (i = column + 1; i < boardSize - 1; i++) {
+            if (stato[boardSize * row + i] == player2) isCorrect = true;
             else break;
         }
-        if (tak && stan[boardSize * rzad + i] == gracz) {
-            for (i--; i >= kolumna; i--) {
-                stan[boardSize * rzad + i] = gracz;
-                //wykonajRuch(gracz, rzad, (byte) i);
+        if (isCorrect && stato[boardSize * row + i] == player) {
+            for (i--; i >= column; i--) {
+                stato[boardSize * row + i] = player;
             }
         }
-        // Sprawdzam górę
-        tak = false;
-        for (i = rzad - 1; i > 0; i--) {
-            if (stan[boardSize * i + kolumna] == gracz2) tak = true;
+        // controllo dell'alto
+        isCorrect = false;
+        for (i = row - 1; i > 0; i--) {
+            if (stato[boardSize * i + column] == player2) isCorrect = true;
             else break;
         }
-        if (tak && stan[boardSize * i + kolumna] == gracz) {
-            for (i++; i <= rzad; i++) {
-                stan[boardSize * i + kolumna] = gracz;
-                //wykonajRuch(gracz, (byte) i, kolumna);
+        if (isCorrect && stato[boardSize * i + column] == player) {
+            for (i++; i <= row; i++) {
+                stato[boardSize * i + column] = player;
             }
         }
-        // Sprawdzam dół
-        tak = false;
-        for (i = rzad + 1; i < boardSize - 1; i++) {
-            if (stan[boardSize * i + kolumna] == gracz2) tak = true;
+        // controllo del basso
+        isCorrect = false;
+        for (i = row + 1; i < boardSize - 1; i++) {
+            if (stato[boardSize * i + column] == player2) isCorrect = true;
             else break;
         }
-        if (tak && stan[boardSize * i + kolumna] == gracz) {
-            for (i--; i >= rzad; i--) {
-                stan[boardSize * i + kolumna] = gracz;
-                //wykonajRuch(gracz, (byte) i, kolumna);
+        if (isCorrect && stato[boardSize * i + column] == player) {
+            for (i--; i >= row; i--) {
+                stato[boardSize * i + column] = player;
             }
         }
-        // Sprawdzam lewą górną przekątną
-        tak = false;
-        for (i = boardSize * rzad + kolumna - (boardSize + 1); i > boardSize && (i % boardSize) < ((i + (boardSize + 1)) % boardSize); i -= (boardSize + 1)) {
-            if (stan[i] == gracz2) tak = true;
+        // controllo diagonale alta sinistra
+        isCorrect = false;
+        for (i = boardSize * row + column - (boardSize + 1); i > boardSize && (i % boardSize) < ((i + (boardSize + 1)) % boardSize); i -= (boardSize + 1)) {
+            if (stato[i] == player2) isCorrect = true;
             else break;
         }
-        if (tak && (i % boardSize) < (i + (boardSize + 1)) % boardSize) {
-            if (stan[i] == gracz) {
-                for (i += boardSize + 1; i <= boardSize * rzad + kolumna; i += boardSize + 1) {
-                    stan[i] = gracz;
-                    //wykonajRuch(gracz, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
+        if (isCorrect && (i % boardSize) < (i + (boardSize + 1)) % boardSize) {
+            if (stato[i] == player) {
+                for (i += boardSize + 1; i <= boardSize * row + column; i += boardSize + 1) {
+                    stato[i] = player;
                 }
             }
         }
-        // Sprawdzam prawą górną przekątną
-        tak = false;
-        for (i = boardSize * rzad + kolumna - (boardSize - 1); i > boardSize && (i % boardSize) > ((i + (boardSize - 1)) % boardSize); i -= (boardSize - 1)) {
-            if (stan[i] == gracz2) tak = true;
+        // controllo diagonale alta destra
+        isCorrect = false;
+        for (i = boardSize * row + column - (boardSize - 1); i > boardSize && (i % boardSize) > ((i + (boardSize - 1)) % boardSize); i -= (boardSize - 1)) {
+            if (stato[i] == player2) isCorrect = true;
             else break;
         }
-        if (tak && (i % boardSize) > (i + (boardSize - 1)) % boardSize) {
-            if (stan[i] == gracz) {
-                for (i += boardSize - 1; i <= boardSize * rzad + kolumna; i += boardSize - 1) {
-                    stan[i] = gracz;
-                    //wykonajRuch(gracz, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
+        if (isCorrect && (i % boardSize) > (i + (boardSize - 1)) % boardSize) {
+            if (stato[i] == player) {
+                for (i += boardSize - 1; i <= boardSize * row + column; i += boardSize - 1) {
+                    stato[i] = player;
                 }
             }
         }
-        // Sprawdzam lewą dolną przekątną
-        tak = false;
-        for (i = boardSize * rzad + kolumna + (boardSize - 1); i < boardSize * (boardSize - 1) && (i % boardSize) < ((i - (boardSize - 1)) % boardSize); i += (boardSize - 1)) {
-            if (stan[i] == gracz2) tak = true;
+        // controllo diagonale bassa sinistra
+        isCorrect = false;
+        for (i = boardSize * row + column + (boardSize - 1); i < boardSize * (boardSize - 1) && (i % boardSize) < ((i - (boardSize - 1)) % boardSize); i += (boardSize - 1)) {
+            if (stato[i] == player2) isCorrect = true;
             else break;
         }
-        if (tak && (i % boardSize) < (i - (boardSize - 1)) % boardSize) {
-            if (stan[i] == gracz) {
-                for (i -= boardSize - 1; i >= boardSize * rzad + kolumna; i -= boardSize - 1) {
-                    stan[i] = gracz;
-                    //wykonajRuch(gracz, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
+        if (isCorrect && (i % boardSize) < (i - (boardSize - 1)) % boardSize) {
+            if (stato[i] == player) {
+                for (i -= boardSize - 1; i >= boardSize * row + column; i -= boardSize - 1) {
+                    stato[i] = player;
                 }
             }
         }
-        // Sprawdzam prawą dolną przekątną
-        tak = false;
-        for (i = boardSize * rzad + kolumna + (boardSize + 1); i < boardSize * (boardSize - 1) && (i % boardSize) > ((i - (boardSize + 1)) % boardSize); i += (boardSize + 1)) {
-            if (stan[i] == gracz2) tak = true;
+        // controllo diagonale bassa destra
+        isCorrect = false;
+        for (i = boardSize * row + column + (boardSize + 1); i < boardSize * (boardSize - 1) && (i % boardSize) > ((i - (boardSize + 1)) % boardSize); i += (boardSize + 1)) {
+            if (stato[i] == player2) isCorrect = true;
             else break;
         }
-        if (tak && (i % boardSize) > (i - (boardSize + 1)) % boardSize) {
-            if (stan[i] == gracz) {
-                for (i -= boardSize + 1; i >= boardSize * rzad + kolumna; i -= boardSize + 1) {
-                    stan[i] = gracz;
-                    //wykonajRuch(gracz, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
+        if (isCorrect && (i % boardSize) > (i - (boardSize + 1)) % boardSize) {
+            if (stato[i] == player) {
+                for (i -= boardSize + 1; i >= boardSize * row + column; i -= boardSize + 1) {
+                    stato[i] = player;
                 }
             }
         }
     }
 
-    /**
-     * Wysyła wiadomość na chat do każdego z graczy dopisując prawidłowy prefiks (nick gracza) i dodając znaki końca linii
-     *
-     * @param s       Socket gracza wysyłającego wiadomość
-     * @param message Wiadomość do wysłania na chat
-     */
     public void sendM(Socket s, byte[] message) throws IOException {
-        byte[] koniec = "\r\n".getBytes();
+        byte[] endOfMessage = "\r\n".getBytes();
         byte[] m;
         if (s == socket) {
-            m = new byte[name.length() + 2 + message.length + koniec.length];
+            m = new byte[name.length() + 2 + message.length + endOfMessage.length];
             for (int i = 0; i < name.length(); i++)
                 m[i] = (byte) name.charAt(i);
             m[name.length()] = ':';
             m[name.length() + 1] = ' ';
             for (int i = 0; i < message.length; i++)
                 m[name.length() + 2 + i] = message[i];
-            for (int i = 0; i < koniec.length; i++)
-                m[name.length() + 2 + message.length + i] = koniec[i];
+            for (int i = 0; i < endOfMessage.length; i++)
+                m[name.length() + 2 + message.length + i] = endOfMessage[i];
         } else {
-            m = new byte[name2.length() + 2 + message.length + koniec.length];
+            m = new byte[name2.length() + 2 + message.length + endOfMessage.length];
             for (int i = 0; i < name2.length(); i++)
                 m[i] = (byte) name2.charAt(i);
             m[name2.length()] = ':';
             m[name2.length() + 1] = ' ';
             for (int i = 0; i < message.length; i++)
                 m[name2.length() + 2 + i] = message[i];
-            for (int i = 0; i < koniec.length; i++)
-                m[name2.length() + 2 + message.length + i] = koniec[i];
+            for (int i = 0; i < endOfMessage.length; i++)
+                m[name2.length() + 2 + message.length + i] = endOfMessage[i];
         }
 
         out.write(m);
         out2.write(m);
-        System.out.println("Wysłano wiadomość");
+        System.out.println("Messaggio inviato correttamente");
     }
 
-    /**
-     * Wysłanie informacji o zakończeniu gry
-     */
+
     public void close() {
         try {
             out.write(new byte[]{7, '\r', '\n'});
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            //e.printStackTrace();
+            e.printStackTrace();
         }
         try {
             out2.write(new byte[]{7, '\r', '\n'});
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            //e.printStackTrace();
+            e.printStackTrace();
         }
-        as.endMatch();
-        bs.endMatch();
+        serverLobbyListener1.endMatch();
+        serverLobbyListener2.endMatch();
         ended = true;
     }
 
-    /**
-     * Wysłanie informacji o zakończeniu gry z powodu wyjścia przeciwnika
-     *
-     * @param s Gniazdo gracza, który opuścił rozgrywkę
-     */
+
     public void closeDisc(Socket s) {
         if (socket == s) {
             try {
                 out2.write(new byte[]{7, 0, '\r', '\n'});
             } catch (IOException e) {
-                // TODO Auto-generated catch block
-                //e.printStackTrace();
+                e.printStackTrace();
             }
         } else {
             try {
                 out.write(new byte[]{7, 0, '\r', '\n'});
             } catch (IOException e) {
-                // TODO Auto-generated catch block
-                //e.printStackTrace();
+                e.printStackTrace();
             }
         }
-        as.endMatch();
-        bs.endMatch();
+        serverLobbyListener1.endMatch();
+        serverLobbyListener2.endMatch();
         ended = true;
     }
 }

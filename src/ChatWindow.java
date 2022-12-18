@@ -17,7 +17,6 @@ public class ChatWindow extends JTextPane {
 		this.setPreferredSize(new Dimension(100,500));
 		this.setMaximumSize(new Dimension(200,500));
 		this.setEditable(false);
-		//this.setMargin(new Insets(5,5,5,5));
 		activate();
 	}
 

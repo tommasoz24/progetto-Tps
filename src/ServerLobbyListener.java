@@ -11,12 +11,12 @@ import java.net.Socket;
 public class ServerLobbyListener extends Thread {
 
     public Socket client;
+    public boolean prossimo = true;
+    public String username;
+    byte busy = 0;
     private BufferedReader in;
     private OutputStream out;
-    public boolean prossimo = true;
-    byte busy = 0;
     private Engine e;
-    public String username;
 
     // client thread
     public ServerLobbyListener(Socket client) {
@@ -27,28 +27,26 @@ public class ServerLobbyListener extends Thread {
             in = new BufferedReader(new InputStreamReader(client.getInputStream()));
             out = client.getOutputStream();
             username = in.readLine();
-            String nickT = username;
+            String username = this.username;
             int a = 0;
             for (int i = 0; i < MainServer.listeners.size(); i++) {
-                if (MainServer.listeners.get(i).username.equals(nickT)) {
-                    System.out.println(nickT);
+                if (MainServer.listeners.get(i).username.equals(username)) {
+                    System.out.println(username);
                     a++;
-                    nickT = username + "(" + a + ")";
+                    username = this.username + "(" + a + ")";
                     i = 0;
                 }
             }
-            username = nickT;
-            byte[] nb = username.getBytes();
-            byte[] temp = new byte[username.length() + 1];
+            this.username = username;
+            byte[] nb = this.username.getBytes();
+            byte[] temp = new byte[this.username.length() + 1];
             System.arraycopy(nb, 0, temp, 1, nb.length);
             temp[0] = 4;
             send(temp);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         MainServer.listeners.add(this);
-        //Main.listeners.add(this);
     }
 
     public void run() {
@@ -91,17 +89,13 @@ public class ServerLobbyListener extends Thread {
                     s2.send(new byte[]{6});
                     e = new Engine(this, s2, Color.BLACK);
                     s2.e = this.e;
-                } else if (message.getBytes()[0] == 2) {
-                    //wait = true;
                 } else if (message.getBytes()[0] == 4) {
                     if ((e.socket == client && e.gira == 1) || (e.socket2 == client && e.gira == 2)) {
                         System.out.println("Odebrano ruch od gracza");
                         this.e.run(message.getBytes());
                     }
-                    //e.notify();
                 } else {
-                    System.out.println("Odebrano wiadomość na chat");
-                    //Main.e.sendM(client,message.getBytes());
+                    System.out.println("ricevuto messaggio: " + message);
                     this.e.sendM(client, message.getBytes());
 
                 }
@@ -110,7 +104,7 @@ public class ServerLobbyListener extends Thread {
             System.out.println("IOException");
             prossimo = false;
         } finally {
-            System.out.println("Klient " + username + " się rozłączył.");
+            System.out.println("Client " + username + " scollegato.");
             MainServer.listeners.remove(this);
             try {
                 prossimo = false;
@@ -137,10 +131,10 @@ public class ServerLobbyListener extends Thread {
 
     // invia messaggio al client con i caratteri di fine linea
     public void send(byte[] message) throws IOException {
-        byte[] koniec = "\r\n".getBytes();
-        byte[] m = new byte[message.length + koniec.length];
+        byte[] fine = "\r\n".getBytes();
+        byte[] m = new byte[message.length + fine.length];
         System.arraycopy(message, 0, m, 0, message.length);
-        System.arraycopy(koniec, 0, m, message.length, koniec.length);
+        System.arraycopy(fine, 0, m, message.length, fine.length);
         out.write(m);
     }
 }
