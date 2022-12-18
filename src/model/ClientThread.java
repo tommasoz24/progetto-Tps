@@ -1,3 +1,8 @@
+package model;
+
+import main.Main;
+import view.FinestraDiGioco;
+
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -47,22 +52,22 @@ public class ClientThread extends Thread {
 				} else if (response[0] == 1) {
 					stan = new byte[64];
 					System.arraycopy(response, 1, stan, 0, stan.length);
-					Main.window.getPanel().updatePlansza(stan);
+					Main.window.getPanel().aggiornamentoGriglia(stan);
 				} else if (response[0] == 2) {
 					System.out.println("Messaggio ricevuto - è il mio turno");
-					Main.window.getPanel().przydzielTure();
+					Main.window.getPanel().assegnaCorretto();
 				} else if (response[0] == 3) {
-					Main.window.getPanel().zabierzTure();
+					Main.window.getPanel().turnoGiocatore();
 				} else if (response[0] == 4) {
 					Main.username = line.substring(1);
 				} else if (response[0] == 5) {
 					System.out.println("Richiesta di creazione di una finestra di gioco - Nero");
-					Main.window = new GameWindow(true);
+					Main.window = new FinestraDiGioco(true);
 					System.out.println("È stata creata una finestra");
 
 				} else if (response[0] == 6) {
 					System.out.println("Richiesta di creazione di una finestra di gioco - Bianco");
-					Main.window = new GameWindow(false);
+					Main.window = new FinestraDiGioco(false);
 					System.out.println("È stata creata una finestra");
 				} else if (response[0] == 7) {
 					byte[] risultati = Main.window.getPanel().getScores();
@@ -71,7 +76,7 @@ public class ClientThread extends Thread {
 					} else if (risultati[0] == risultati[1])
 						JOptionPane.showMessageDialog(Main.window, "Fine della partita - pareggio");
 					else {
-						if (Main.window.getPanel().giocatore == 2) {
+						if (Main.window.getPanel().player == 2) {
 							if (risultati[0] > risultati[1])
 								JOptionPane.showMessageDialog(Main.window, "Fine della partita - vittoria");
 							else

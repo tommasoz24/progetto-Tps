@@ -1,19 +1,25 @@
+package main;
+
 import javax.swing.*;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import model.ClientThread;
+import view.FinestraDiGioco;
+import view.SchermataLobby;
 
-// Client Main
+
+// Client main.Main
 public class Main {
 
-    static public GameWindow window;
+    static public FinestraDiGioco window;
 
     static public JFrame windowLobby;
 
     static public ClientThread clientThread; // thread cliente
 
-    static public PanelLobby pl;
+    static public SchermataLobby pl;
 
     static public String username = "Giocatore";
 
@@ -40,7 +46,7 @@ public class Main {
             lobbyFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             lobbyFrame.setTitle("Lobby");
             lobbyFrame.setSize(400, 200);
-            pl = new PanelLobby();
+            pl = new SchermataLobby();
             lobbyFrame.setContentPane(pl);
             lobbyFrame.setVisible(true);
         } catch (UnknownHostException e) {

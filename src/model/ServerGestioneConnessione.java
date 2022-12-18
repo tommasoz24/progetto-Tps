@@ -1,12 +1,16 @@
+package model;
+
+import controller.ClientHandler;
+
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class ServerLobbyConManager extends Thread {
+public class ServerGestioneConnessione extends Thread {
 
     private final ServerSocket socket;
 
     // thread gestione connessione
-    public ServerLobbyConManager(ServerSocket server) {
+    public ServerGestioneConnessione(ServerSocket server) {
         this.socket = server;
     }
 
@@ -15,7 +19,7 @@ public class ServerLobbyConManager extends Thread {
             Socket k;
             try {
                 k = socket.accept();
-                ServerLobbyListener a = new ServerLobbyListener(k);
+                ClientHandler a = new ClientHandler(k);
                 a.start();
                 System.out.println("Client connesso. Il server funziona...");
             } catch (Exception e) {

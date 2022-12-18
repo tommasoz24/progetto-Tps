@@ -1,3 +1,7 @@
+package view;
+
+import main.Main;
+
 import java.awt.Color;
 import java.awt.Dimension;
 
@@ -8,11 +12,11 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 
 // object for display the chat room
-public class ChatWindow extends JTextPane {
+public class FinestraChat extends JTextPane {
 	private final Color a = Color.GREEN;
 	private final Color b = Color.BLACK;
 
-	public ChatWindow() {
+	public FinestraChat() {
 		setBackground(Color.LIGHT_GRAY);
 		this.setPreferredSize(new Dimension(100,500));
 		this.setMaximumSize(new Dimension(200,500));

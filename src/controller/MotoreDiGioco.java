@@ -1,3 +1,5 @@
+package controller;
+
 import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -7,7 +9,7 @@ import java.util.List;
 
 
 // Il motore di gioco che calcola le possibili mosse, controlla la correttezza delle mosse dei giocatori, assegna i turni, ecc
-public class Engine {
+public class MotoreDiGioco {
 
 
     public Socket socket, socket2;
@@ -23,10 +25,10 @@ public class Engine {
     private final byte[] fine = "\r\n".getBytes();
     byte giocatore, giocatore2 = 1;
     public boolean ended = false;
-    ServerLobbyListener serverLobbyListener1;
-    ServerLobbyListener serverLobbyListener2;
+    ClientHandler serverLobbyListener1;
+    ClientHandler serverLobbyListener2;
 
-    public Engine(ServerLobbyListener serverLobbyListener1, ServerLobbyListener serverLobbyListener2, Color color1) {
+    public MotoreDiGioco(ClientHandler serverLobbyListener1, ClientHandler serverLobbyListener2, Color color1) {
         System.out.println("Engine in funzione");
         this.serverLobbyListener1 = serverLobbyListener1;
         this.serverLobbyListener2 = serverLobbyListener2;

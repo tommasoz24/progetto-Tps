@@ -1,3 +1,7 @@
+package view;
+
+import main.Main;
+
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -5,15 +9,15 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-public class GameWindow extends JFrame {
+public class FinestraDiGioco extends JFrame {
 
     public JPanel contentPane;
-    public PanelBoard panel;    // pannello con la scacchiera
-    public ChatWindow chat;       // pannello con la chat
+    public SchermataGrigliaGioco panel;    // pannello con la scacchiera
+    public FinestraChat chat;       // pannello con la chat
     public JLabel label, label2;    // etichette punteggio
 
     // creo la finestra di gioco
-    public GameWindow(boolean nero) {
+    public FinestraDiGioco(boolean nero) {
         System.out.println("Creazione finestra di gioco");
         setTitle("Othello");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -59,7 +63,7 @@ public class GameWindow extends JFrame {
         c.gridy = 1;
         contentPane.add(label2, c);
 
-        panel = new PanelBoard(nero);
+        panel = new SchermataGrigliaGioco(nero);
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 0.75;
         c.weighty = 1;
@@ -69,7 +73,7 @@ public class GameWindow extends JFrame {
         c.gridy = 0;
         contentPane.add(panel, c);
 
-        chat = new ChatWindow();
+        chat = new FinestraChat();
         JScrollPane chatScrollbar = new JScrollPane(chat, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 0.2;
@@ -126,7 +130,7 @@ public class GameWindow extends JFrame {
     }
 
     // aggiorna il punteggio
-    public PanelBoard getPanel() {
+    public SchermataGrigliaGioco getPanel() {
         return panel;
     }
 

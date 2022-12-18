@@ -1,3 +1,7 @@
+package controller;
+
+import main.MainServer;
+
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,7 +12,7 @@ import java.net.Socket;
 // Il thread che gestisce la comunicazione con il client sul lato server
 
 
-public class ServerLobbyListener extends Thread {
+public class ClientHandler extends Thread {
 
     public Socket client;
     public boolean prossimo = true;
@@ -16,10 +20,10 @@ public class ServerLobbyListener extends Thread {
     byte busy = 0;
     private BufferedReader in;
     private OutputStream out;
-    private Engine e;
+    private MotoreDiGioco e;
 
     // client thread
-    public ServerLobbyListener(Socket client) {
+    public ClientHandler(Socket client) {
 
         this.client = client;
 
@@ -62,20 +66,20 @@ public class ServerLobbyListener extends Thread {
             }
             while (prossimo) {
                 String message;
-                System.out.println("Listener czeka na readLine");
+                System.out.println("in attesa readLine");
                 message = in.readLine();
-                if (message.getBytes()[0] == 0) { // 0 - updateLista dla klienta
-                    System.out.println("Żądanie update'u listy");
+                if (message.getBytes()[0] == 0) { // 0 - lista di aggiornamento per il client
+                    System.out.println("Richiesta di aggiornamento dell'elenco");
                     send(new byte[]{0, (byte) MainServer.listeners.size()});
 
                     for (byte i = 0; i < MainServer.listeners.size(); i++) {
                         send(MainServer.listeners.get(i).username.getBytes());
                         send(new byte[]{MainServer.listeners.get(i).busy});
                     }
-                    System.out.println("Wysłano całość");
-                } else if (message.getBytes()[0] == 1) { // 1 - rozpocznij rozgrywkę
+                    System.out.println("Invio completato");
+                } else if (message.getBytes()[0] == 1) { // 1 - avviare il gioco
                     System.out.println("Odebrano prosbe o gre");
-                    ServerLobbyListener s2 = null;
+                    ClientHandler s2 = null;
                     for (int i = 0; i < MainServer.listeners.size(); i++) {
                         if (MainServer.listeners.get(i).username.equals(message.substring(1)))
                             s2 = MainServer.listeners.get(i);
@@ -83,15 +87,15 @@ public class ServerLobbyListener extends Thread {
                     if (busy == 1 || s2 == null || s2.busy == 1) continue;
                     busy = 1;
                     s2.busy = 1;
-                    System.out.println("Przed stworzeniem silnika");
+                    System.out.println("prima che l'engine venga creato");
 
                     send(new byte[]{5});
                     s2.send(new byte[]{6});
-                    e = new Engine(this, s2, Color.BLACK);
+                    e = new MotoreDiGioco(this, s2, Color.BLACK);
                     s2.e = this.e;
                 } else if (message.getBytes()[0] == 4) {
                     if ((e.socket == client && e.gira == 1) || (e.socket2 == client && e.gira == 2)) {
-                        System.out.println("Odebrano ruch od gracza");
+                        System.out.println("mossa ricevuta dal giocatore " + e.gira);
                         this.e.run(message.getBytes());
                     }
                 } else {
@@ -121,9 +125,7 @@ public class ServerLobbyListener extends Thread {
         }
     }
 
-    /**
-     * Termina la partita se ne è in corso una e imposta a 0 il flag di occupato
-     */
+     //Termina la partita se ne è in corso una e imposta a 0 il flag di occupato
     public void endMatch() {
         e = null;
         busy = 0;

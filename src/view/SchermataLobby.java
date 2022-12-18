@@ -1,3 +1,7 @@
+package view;
+
+import main.Main;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -7,14 +11,14 @@ import static java.awt.Color.*;
 
 // Un pannello che mostra un elenco di tutti i client sul server in una tabella, insieme ai pulsanti Riproduci e Aggiorna
 
-public class PanelLobby extends JPanel {
+public class SchermataLobby extends JPanel {
 
     private final JTable table;
     DefaultTableModel dtm;
     Object[][] s;
 
     // costruttore
-    public PanelLobby() {
+    public SchermataLobby() {
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         dtm = new DefaultTableModel() {
             public boolean isCellEditable(int row, int column) {
@@ -23,7 +27,7 @@ public class PanelLobby extends JPanel {
             }
         };
         dtm.addColumn("Numero");
-        dtm.addColumn("Nickname");
+        dtm.addColumn("Username");
         dtm.addColumn("In gioco"); // 0 - no, 1 - si
         table = new JTable(dtm);
         JScrollPane tab = new JScrollPane(table, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
