@@ -12,7 +12,7 @@ public class Engine {
 
     public Socket socket, socket2;
     private OutputStream out, out2;
-    private final String name;      // nome del giocatore
+    private final String name;
     private final String name2;
 
     public int gira = 1;
@@ -26,16 +26,16 @@ public class Engine {
     ServerLobbyListener as;
     ServerLobbyListener bs;
 
-    public Engine(ServerLobbyListener a, ServerLobbyListener b, Color kolor1) {
+    public Engine(ServerLobbyListener a, ServerLobbyListener b, Color color1) {
         System.out.println("Motore in funzione");
         this.as = a;
         this.bs = b;
         socket = a.client;
         socket2 = b.client;
-        name = a.nick;
-        name2 = b.nick;
+        name = a.username;
+        name2 = b.username;
         System.out.println(name + " vs " + name2);
-        if (kolor1 == Color.BLACK) giocatore = 2;
+        if (color1 == Color.BLACK) giocatore = 2;
         else {
             giocatore = 1;
             gira = 2;
@@ -44,7 +44,7 @@ public class Engine {
         try {
             out = socket.getOutputStream();
             out2 = socket2.getOutputStream();
-            System.out.println("Serwer START");
+            System.out.println("START server");
             stan = new byte[boardSize * boardSize];
             for (int i = 0; i < 50; i++)
                 stan[i] = 1;
@@ -59,84 +59,74 @@ public class Engine {
                 message[stan.length + 1 + i] = fine[i];
             out.write(message);
             out2.write(message);
-            turaInfo();
-            dozwoloneRuchy();
+            turnoInfo();
+            mossePermesse();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
     }
 
-    /**
-     * Wykonanie kodu odpowiedzialnego za logikę gry w zależności od ruchu gracza
-     *
-     * @param response Wiadomość od gracza do silnika gry. W zależności od wartości pierwszego bajta tablicy:
-     *                 0 - brak akcji
-     *                 4 - ruch gracza
-     */
+    // metodo che calcola le mosse possibili per il giocatore corrente
     public void run(byte[] response) {
         try {
             if (!ended) {
                 if (gira == 1) {
-                    System.out.println("Tura pierwszego okienka");
+                    System.out.println("finestra rotonda");
                     byte[] message = new byte[fine.length + 1];
 
-                    //else {
-                    System.out.println("Są ruchy do zrobienia dla lewego:");
+                    System.out.println("Ci sono movimenti da fare per la sinistra:");
                     for (Byte aByte : consenti1) System.out.print(aByte + " ");
                     System.out.println();
                     switch (response[0]) {
                         case 0:
                             break;
                         case 4:
-                            byte rzad = response[1], kolumna = response[2];
-                            if (!consenti1.contains((byte) (rzad * boardSize + kolumna))) {
+                            byte b = response[1], column = response[2];
+                            if (!consenti1.contains((byte) (b * boardSize + column))) {
                                 message[0] = -1;
                                 out.write(message);
-                                System.out.println("Przesłano info, że tura nie dozwolona");
-                                wyslijStan();
-                                turaInfo();
+                                System.out.println("Svolta non consentita");
+                                inviaStato();
+                                turnoInfo();
                             } else {
-                                wykonajRuch(giocatore, rzad, kolumna);
-                                wyslijStan();
+                                makeMove(giocatore, b, column);
+                                inviaStato();
                                 gira = 2;
-                                turaInfo();
-                                System.out.println("Wysłano stany po wyk ruchu");
+                                turnoInfo();
+                                System.out.println("stato dopo rilevamento movimento");
                             }
                             break;
                         default:
-                            System.out.println("Coś się popsuło");
+                            System.out.println("errore di comunicazione");
                             break;
                     }
-                    dozwoloneRuchy();
+                    mossePermesse();
                     if (consenti1.size() + consenti2.size() == 0) {
-                        System.out.println("Gra zakończona");
-                        if (ktoWygral() == giocatore) System.out.println("Wygrywa " + name);
-                        else if (ktoWygral() == giocatore2) System.out.println("Wygrywa " + name2);
-                        else System.out.println("Remis");
+                        System.out.println("Il gioco è finito");
+                        if (trovaVincitore() == giocatore) System.out.println("Vittoria " + name);
+                        else if (trovaVincitore() == giocatore2) System.out.println("Vittoria " + name2);
+                        else System.out.println("Legare");
                         close();
                     } else if (consenti2.size() == 0) {
                         gira = 1;
-                        turaInfo();
-                        System.out.println("Brak dozwolonych ruchów dla lewego okna");
+                        turnoInfo();
+                        System.out.println("Nessun movimento consentito per la finestra sinistra");
                     }
-                    //}
                 } else {
-                    System.out.println("Tura drugiego okienka");
+                    System.out.println("Secondo round");
                     byte[] message = new byte[fine.length + 1];
                     if (consenti1.size() + consenti2.size() == 0) {
-                        System.out.println("Gra zakończona");
-                        if (ktoWygral() == giocatore) System.out.println("Wygrywa " + name);
-                        else if (ktoWygral() == giocatore2) System.out.println("Wygrywa " + name2);
-                        else System.out.println("Remis");
-                        //send(new byte[] {7});
+                        System.out.println("Il gioco è finito");
+                        if (trovaVincitore() == giocatore) System.out.println("Vittorie " + name);
+                        else if (trovaVincitore() == giocatore2) System.out.println("Vittorie " + name2);
+                        else System.out.println("Pareggio");
                         close();
                     } else if (consenti2.size() == 0) {
                         gira = 1;
-                        System.out.println("Brak dozwolonych ruchów dla prawego okna");
+                        System.out.println("Nessun movimento consentito per la finestra di destra");
                     } else {
-                        System.out.println("Są ruchy do zrobienia dla drugiego okna: ");
+                        System.out.println("Ci sono mosse da fare per la seconda finestra: ");
                         for (Byte aByte : consenti2) System.out.print(aByte + " ");
                         System.out.println();
 
@@ -144,36 +134,36 @@ public class Engine {
                             case 0:
                                 break;
                             case 4:
-                                byte rzad = response[1], kolumna = response[2];
-                                if (!consenti2.contains((byte) (rzad * boardSize + kolumna))) {
+                                byte b = response[1], columns = response[2];
+                                if (!consenti2.contains((byte) (b * boardSize + columns))) {
                                     message[0] = -1;
                                     out2.write(message);
-                                    wyslijStan();
-                                    turaInfo();
-                                    System.out.println("Przesłano info, że tura nie dozwolona");
+                                    inviaStato();
+                                    turnoInfo();
+                                    System.out.println("svolta non consentita");
                                 } else {
-                                    wykonajRuch(giocatore2, rzad, kolumna);
-                                    wyslijStan();
+                                    makeMove(giocatore2, b, columns);
+                                    inviaStato();
                                     gira = 1;
-                                    turaInfo();
-                                    System.out.println("Wysłano stany po wyk ruchu");
+                                    turnoInfo();
+                                    System.out.println("stato dopo rilevamento movimento");
                                 }
                                 break;
                             default:
                                 System.out.println("Coś się popsuło");
                                 break;
                         }
-                        dozwoloneRuchy();
+                        mossePermesse();
                         if (consenti1.size() + consenti2.size() == 0) {
-                            System.out.println("Gra zakończona");
-                            if (ktoWygral() == giocatore) System.out.println("Wygrywa " + name);
-                            else if (ktoWygral() == giocatore2) System.out.println("Wygrywa " + name2);
-                            else System.out.println("Remis");
+                            System.out.println("Il gioco è finito");
+                            if (trovaVincitore() == giocatore) System.out.println(" " + name);
+                            else if (trovaVincitore() == giocatore2) System.out.println("Vittorie " + name2);
+                            else System.out.println("Pareggio");
                             close();
                         } else if (consenti1.size() == 0) {
                             gira = 2;
-                            turaInfo();
-                            System.out.println("Brak dozwolonych ruchów dla lewego okna");
+                            turnoInfo();
+                            System.out.println("Nessun movimento consentito per la finestra sinistra");
                         }
                     }
                 }
@@ -185,108 +175,93 @@ public class Engine {
         }
     }
 
-    /**
-     * Wysłanie do klientów informacji do kogo należy aktualna tura
-     */
-    public void turaInfo() throws IOException {
+    //Invio di informazioni ai clienti a cui appartiene il turno corrente
+    public void turnoInfo() throws IOException {
         byte[] message = new byte[fine.length + 1];
         if (gira == 1) {
-            message[0] = 2; // 2 - Przesyłam info że twoja tura
+            message[0] = 2; // 2 - Invio informazioni sul turno
             System.arraycopy(fine, 0, message, 1, fine.length);
             out.write(message);
             System.out.println("Przesłano info, że tura pierwszego");
-            message[0] = 3; // 3 - Przesyłam info że tura przeciwnika
+            message[0] = 3; // 3 - Invio informazioni sul turno
             out2.write(message);
         } else {
-            message[0] = 2; // 2 - Przesyłam info że twoja tura
+            message[0] = 2; // 2 - Invio informazioni sul turno
             System.arraycopy(fine, 0, message, 1, fine.length);
             out2.write(message);
             System.out.println("Przesłano info, że tura pierwszego");
-            message[0] = 3; // 3 - Przesyłam info że tura przeciwnika
+            message[0] = 3; // 3 - Invio informazioni sul turno
             out.write(message);
         }
     }
 
-    /**
-     * Wypełnienie list dozwolonych ruchów
-     */
-    private void dozwoloneRuchy() {
+    // elenco informazioni dei movimenti consentiti
+    private void mossePermesse() {
         consenti1.clear();
         consenti2.clear();
         for (byte i = boardSize / 2; i >= 0; i--) {
-            boolean czySasiadowal = false;
+            boolean DidSat = false;
             for (byte j = 0; j < boardSize; j++) {
-                boolean t = czySasiaduje(giocatore, i, j);
-                czySasiadowal |= t;
+                boolean t = seMosso(giocatore, i, j);
+                DidSat |= t;
                 if (t) {
-                    if (czyRuchPoprawny(giocatore, i, j)) consenti1.add((byte) (i * boardSize + j));
+                    if (isMovimentoCorretto(giocatore, i, j)) consenti1.add((byte) (i * boardSize + j));
                 }
             }
-            if (!czySasiadowal) break;
+            if (!DidSat) break;
         }
         for (byte i = boardSize / 2 + 1; i < boardSize; i++) {
-            boolean czySasiadowal = false;
+            boolean didStat = false;
             for (byte j = 0; j < boardSize; j++) {
-                boolean t = czySasiaduje(giocatore, i, j);
-                czySasiadowal |= t;
+                boolean t = seMosso(giocatore, i, j);
+                didStat |= t;
                 if (t) {
-                    if (czyRuchPoprawny(giocatore, i, j)) consenti1.add((byte) (i * boardSize + j));
+                    if (isMovimentoCorretto(giocatore, i, j)) consenti1.add((byte) (i * boardSize + j));
                 }
             }
-            if (!czySasiadowal) break;
+            if (!didStat) break;
         }
 
 
         for (byte i = boardSize / 2; i >= 0; i--) {
-            boolean czySasiadowal = false;
+            boolean didStat = false;
             for (byte j = 0; j < boardSize; j++) {
-                boolean t = czySasiaduje(giocatore2, i, j);
-                czySasiadowal |= t;
+                boolean t = seMosso(giocatore2, i, j);
+                didStat |= t;
                 if (t) {
-                    if (czyRuchPoprawny(giocatore2, i, j)) consenti2.add((byte) (i * boardSize + j));
+                    if (isMovimentoCorretto(giocatore2, i, j)) consenti2.add((byte) (i * boardSize + j));
                 }
             }
-            if (!czySasiadowal) break;
+            if (!didStat) break;
         }
         for (byte i = boardSize / 2 + 1; i < boardSize; i++) {
-            boolean czySasiadowal = false;
+            boolean didStat = false;
             for (byte j = 0; j < boardSize; j++) {
-                boolean t = czySasiaduje(giocatore2, i, j);
-                czySasiadowal |= t;
+                boolean t = seMosso(giocatore2, i, j);
+                didStat |= t;
                 if (t) {
-                    if (czyRuchPoprawny(giocatore2, i, j)) consenti2.add((byte) (i * boardSize + j));
+                    if (isMovimentoCorretto(giocatore2, i, j)) consenti2.add((byte) (i * boardSize + j));
                 }
             }
-            if (!czySasiadowal) break;
+            if (!didStat) break;
         }
     }
 
-    /**
-     * Dostarcza informacji o graczu wygrywającym
-     *
-     * @return Wartość zmienej giocatore,gracz2 (oznaczającej kolor pionków zwycięzcy) lub 0 gdy jest remis
-     */
-    public byte ktoWygral() {
-        int punkty1 = 0, punkty2 = 0;
+    // fornisce informazioni sul giocatore vincente
+    public byte trovaVincitore() {
+        int punti1 = 0, punti2 = 0;
         for (byte b : stan) {
-            if (b == giocatore) punkty1++;
-            else if (b == giocatore2) punkty2++;
+            if (b == giocatore) punti1++;
+            else if (b == giocatore2) punti2++;
         }
-        if (punkty1 > punkty2) return giocatore;
-        else if (punkty1 == punkty2) return 0;
+        if (punti1 > punti2) return giocatore;
+        else if (punti1 == punti2) return 0;
         else return giocatore2;
     }
 
-    /**
-     * Zwraca true gdy ruch jest poprawny, false gdy nie jest zgodny z regułami gry
-     *
-     * @param g1      Kolor pionków gracza wykonującego ruch (1 - biały, 2 - czarny)
-     * @param rzad    Numer rzędu wybranego pola na planszy
-     * @param kolumna Numer kolumny wybranego pola na planszy
-     * @return true gdy ruch poprawny, false w przeciwnym wypadku
-     */
-    private boolean czyRuchPoprawny(byte g1, byte rzad, byte kolumna) {
-        if (rzad >= boardSize || kolumna >= boardSize || stan[rzad * boardSize + kolumna] != 0)
+    // verifica se la mossa è corretta
+    private boolean isMovimentoCorretto(byte g1, byte pareggio, byte column) {
+        if (pareggio >= boardSize || column >= boardSize || stan[pareggio * boardSize + column] != 0)
             return false;
 
         byte g2 = 1;
@@ -294,35 +269,35 @@ public class Engine {
         boolean tak = false;
         int i;
         // Sprawdzam lewą stronę
-        for (i = kolumna - 1; i > 0; i--) {
-            if (stan[boardSize * rzad + i] == g2) tak = true;
+        for (i = column - 1; i > 0; i--) {
+            if (stan[boardSize * pareggio + i] == g2) tak = true;
             else break;
         }
-        if (tak && stan[boardSize * rzad + i] == g1) return true;
+        if (tak && stan[boardSize * pareggio + i] == g1) return true;
         // Sprawdzam prawą stronę
         tak = false;
-        for (i = kolumna + 1; i < boardSize - 1; i++) {
-            if (stan[boardSize * rzad + i] == g2) tak = true;
+        for (i = column + 1; i < boardSize - 1; i++) {
+            if (stan[boardSize * pareggio + i] == g2) tak = true;
             else break;
         }
-        if (tak && stan[boardSize * rzad + i] == g1) return true;
+        if (tak && stan[boardSize * pareggio + i] == g1) return true;
         // Sprawdzam górę
         tak = false;
-        for (i = rzad - 1; i > 0; i--) {
-            if (stan[boardSize * i + kolumna] == g2) tak = true;
+        for (i = pareggio - 1; i > 0; i--) {
+            if (stan[boardSize * i + column] == g2) tak = true;
             else break;
         }
-        if (tak && stan[boardSize * i + kolumna] == g1) return true;
+        if (tak && stan[boardSize * i + column] == g1) return true;
         // Sprawdzam dół
         tak = false;
-        for (i = rzad + 1; i < boardSize - 1; i++) {
-            if (stan[boardSize * i + kolumna] == g2) tak = true;
+        for (i = pareggio + 1; i < boardSize - 1; i++) {
+            if (stan[boardSize * i + column] == g2) tak = true;
             else break;
         }
-        if (tak && stan[boardSize * i + kolumna] == g1) return true;
+        if (tak && stan[boardSize * i + column] == g1) return true;
         // Sprawdzam lewą górną przekątną
         tak = false;
-        for (i = boardSize * rzad + kolumna - (boardSize + 1); i > boardSize && (i % boardSize) < ((i + (boardSize + 1)) % boardSize); i -= (boardSize + 1)) {
+        for (i = boardSize * pareggio + column - (boardSize + 1); i > boardSize && (i % boardSize) < ((i + (boardSize + 1)) % boardSize); i -= (boardSize + 1)) {
             if (stan[i] == g2) tak = true;
             else break;
         }
@@ -331,7 +306,7 @@ public class Engine {
         }
         // Sprawdzam prawą górną przekątną
         tak = false;
-        for (i = boardSize * rzad + kolumna - (boardSize - 1); i > boardSize && (i % boardSize) > ((i + (boardSize - 1)) % boardSize); i -= (boardSize - 1)) {
+        for (i = boardSize * pareggio + column - (boardSize - 1); i > boardSize && (i % boardSize) > ((i + (boardSize - 1)) % boardSize); i -= (boardSize - 1)) {
             if (stan[i] == g2) tak = true;
             else break;
         }
@@ -340,7 +315,7 @@ public class Engine {
         }
         // Sprawdzam lewą dolną przekątną
         tak = false;
-        for (i = boardSize * rzad + kolumna + (boardSize - 1); i < boardSize * (boardSize - 1) && (i % boardSize) < ((i - (boardSize - 1)) % boardSize); i += (boardSize - 1)) {
+        for (i = boardSize * pareggio + column + (boardSize - 1); i < boardSize * (boardSize - 1) && (i % boardSize) < ((i - (boardSize - 1)) % boardSize); i += (boardSize - 1)) {
             if (stan[i] == g2) tak = true;
             else break;
         }
@@ -349,7 +324,7 @@ public class Engine {
         }
         // Sprawdzam prawą dolną przekątną
         tak = false;
-        for (i = boardSize * rzad + kolumna + (boardSize + 1); i < boardSize * (boardSize - 1) && (i % boardSize) > ((i - (boardSize + 1)) % boardSize); i += (boardSize + 1)) {
+        for (i = boardSize * pareggio + column + (boardSize + 1); i < boardSize * (boardSize - 1) && (i % boardSize) > ((i - (boardSize + 1)) % boardSize); i += (boardSize + 1)) {
             if (stan[i] == g2) tak = true;
             else break;
         }
@@ -367,7 +342,7 @@ public class Engine {
      * @param kolumna Numer kolumny wybranego pola na planszy
      * @return true gdy pole sąsiaduje z pionkiem przeciwnika, false w przeciwnym wypadku
      */
-    private boolean czySasiaduje(byte gracz, byte rzad, byte kolumna) {
+    private boolean seMosso(byte gracz, byte rzad, byte kolumna) {
         boolean lewo = false, prawo = false, gora = false, dol = false;
         byte gracz2 = 1;
         if (gracz == 1) gracz2 = 2;
@@ -409,7 +384,7 @@ public class Engine {
     /**
      * Wysyła do klientów aktualny stan planszy
      */
-    private void wyslijStan() {
+    private void inviaStato() {
         byte[] message = new byte[stan.length + fine.length + 1];
         message[0] = 1;
         System.arraycopy(stan, 0, message, 1, stan.length);
@@ -431,7 +406,7 @@ public class Engine {
      * @param rzad    Numer rzędu wybranego pola na planszy
      * @param kolumna Numer kolumny wybranego pola na planszy
      */
-    private void wykonajRuch(byte gracz, byte rzad, byte kolumna) {
+    private void makeMove(byte gracz, byte rzad, byte kolumna) {
         byte gracz2 = 1;
         if (gracz == 1) gracz2 = 2;
         boolean tak = false;
@@ -444,7 +419,7 @@ public class Engine {
         if (tak && stan[boardSize * rzad + i] == gracz) {
             for (i++; i <= kolumna; i++) {
                 stan[boardSize * rzad + i] = gracz;
-                //wykonajRuch(giocatore, rzad, (byte) i);
+                //wykonajRuch(gracz, rzad, (byte) i);
             }
         }
         // Sprawdzam prawą stronę
@@ -456,7 +431,7 @@ public class Engine {
         if (tak && stan[boardSize * rzad + i] == gracz) {
             for (i--; i >= kolumna; i--) {
                 stan[boardSize * rzad + i] = gracz;
-                //wykonajRuch(giocatore, rzad, (byte) i);
+                //wykonajRuch(gracz, rzad, (byte) i);
             }
         }
         // Sprawdzam górę
@@ -468,7 +443,7 @@ public class Engine {
         if (tak && stan[boardSize * i + kolumna] == gracz) {
             for (i++; i <= rzad; i++) {
                 stan[boardSize * i + kolumna] = gracz;
-                //wykonajRuch(giocatore, (byte) i, kolumna);
+                //wykonajRuch(gracz, (byte) i, kolumna);
             }
         }
         // Sprawdzam dół
@@ -480,7 +455,7 @@ public class Engine {
         if (tak && stan[boardSize * i + kolumna] == gracz) {
             for (i--; i >= rzad; i--) {
                 stan[boardSize * i + kolumna] = gracz;
-                //wykonajRuch(giocatore, (byte) i, kolumna);
+                //wykonajRuch(gracz, (byte) i, kolumna);
             }
         }
         // Sprawdzam lewą górną przekątną
@@ -493,7 +468,7 @@ public class Engine {
             if (stan[i] == gracz) {
                 for (i += boardSize + 1; i <= boardSize * rzad + kolumna; i += boardSize + 1) {
                     stan[i] = gracz;
-                    //wykonajRuch(giocatore, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
+                    //wykonajRuch(gracz, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
                 }
             }
         }
@@ -507,7 +482,7 @@ public class Engine {
             if (stan[i] == gracz) {
                 for (i += boardSize - 1; i <= boardSize * rzad + kolumna; i += boardSize - 1) {
                     stan[i] = gracz;
-                    //wykonajRuch(giocatore, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
+                    //wykonajRuch(gracz, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
                 }
             }
         }
@@ -521,7 +496,7 @@ public class Engine {
             if (stan[i] == gracz) {
                 for (i -= boardSize - 1; i >= boardSize * rzad + kolumna; i -= boardSize - 1) {
                     stan[i] = gracz;
-                    //wykonajRuch(giocatore, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
+                    //wykonajRuch(gracz, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
                 }
             }
         }
@@ -535,7 +510,7 @@ public class Engine {
             if (stan[i] == gracz) {
                 for (i -= boardSize + 1; i >= boardSize * rzad + kolumna; i -= boardSize + 1) {
                     stan[i] = gracz;
-                    //wykonajRuch(giocatore, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
+                    //wykonajRuch(gracz, (byte) (i/planszaRozmiar), (byte) (i%planszaRozmiar));
                 }
             }
         }
@@ -593,8 +568,8 @@ public class Engine {
             // TODO Auto-generated catch block
             //e.printStackTrace();
         }
-        as.zakonczMecz();
-        bs.zakonczMecz();
+        as.endMatch();
+        bs.endMatch();
         ended = true;
     }
 
@@ -619,8 +594,8 @@ public class Engine {
                 //e.printStackTrace();
             }
         }
-        as.zakonczMecz();
-        bs.zakonczMecz();
+        as.endMatch();
+        bs.endMatch();
         ended = true;
     }
 }

@@ -32,7 +32,7 @@ public class PanelLobby extends JPanel {
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 final Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-                if ((table.getValueAt(row, 1)).toString().compareTo(Main.name) == 0) {
+                if ((table.getValueAt(row, 1)).toString().compareTo(Main.username) == 0) {
                     c.setBackground(LIGHT_GRAY);
                     c.setForeground(YELLOW);
                 } else if ((byte) table.getValueAt(row, 2) == 1) {
@@ -57,7 +57,7 @@ public class PanelLobby extends JPanel {
         JButton button2 = new JButton("Gioca");
         button2.addActionListener(e -> {
             int row = table.getSelectedRow();
-            if (row != -1 && ((String) table.getValueAt(row, 1)).compareTo(Main.name) != 0 && (byte) table.getValueAt(row, 2) != 1) {
+            if (row != -1 && ((String) table.getValueAt(row, 1)).compareTo(Main.username) != 0 && (byte) table.getValueAt(row, 2) != 1) {
                 try {
                     String z = table.getValueAt(row, 1).toString();
                     System.out.println("Chiamo la funzione play() con attributo" + z);

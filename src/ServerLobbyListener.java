@@ -16,7 +16,7 @@ public class ServerLobbyListener extends Thread {
     public boolean prossimo = true;
     byte busy = 0;
     private Engine e;
-    public String nick;
+    public String username;
 
     // client thread
     public ServerLobbyListener(Socket client) {
@@ -26,20 +26,20 @@ public class ServerLobbyListener extends Thread {
         try {
             in = new BufferedReader(new InputStreamReader(client.getInputStream()));
             out = client.getOutputStream();
-            nick = in.readLine();
-            String nickT = nick;
+            username = in.readLine();
+            String nickT = username;
             int a = 0;
             for (int i = 0; i < MainServer.listeners.size(); i++) {
-                if (MainServer.listeners.get(i).nick.equals(nickT)) {
+                if (MainServer.listeners.get(i).username.equals(nickT)) {
                     System.out.println(nickT);
                     a++;
-                    nickT = nick + "(" + a + ")";
+                    nickT = username + "(" + a + ")";
                     i = 0;
                 }
             }
-            nick = nickT;
-            byte[] nb = nick.getBytes();
-            byte[] temp = new byte[nick.length() + 1];
+            username = nickT;
+            byte[] nb = username.getBytes();
+            byte[] temp = new byte[username.length() + 1];
             System.arraycopy(nb, 0, temp, 1, nb.length);
             temp[0] = 4;
             send(temp);
@@ -58,7 +58,7 @@ public class ServerLobbyListener extends Thread {
                 MainServer.listeners.get(j).send(new byte[]{0, (byte) MainServer.listeners.size()});
 
                 for (byte i = 0; i < MainServer.listeners.size(); i++) {
-                    MainServer.listeners.get(j).send(MainServer.listeners.get(i).nick.getBytes());
+                    MainServer.listeners.get(j).send(MainServer.listeners.get(i).username.getBytes());
                     MainServer.listeners.get(j).send(new byte[]{MainServer.listeners.get(i).busy});
                 }
             }
@@ -71,7 +71,7 @@ public class ServerLobbyListener extends Thread {
                     send(new byte[]{0, (byte) MainServer.listeners.size()});
 
                     for (byte i = 0; i < MainServer.listeners.size(); i++) {
-                        send(MainServer.listeners.get(i).nick.getBytes());
+                        send(MainServer.listeners.get(i).username.getBytes());
                         send(new byte[]{MainServer.listeners.get(i).busy});
                     }
                     System.out.println("Wysłano całość");
@@ -79,7 +79,7 @@ public class ServerLobbyListener extends Thread {
                     System.out.println("Odebrano prosbe o gre");
                     ServerLobbyListener s2 = null;
                     for (int i = 0; i < MainServer.listeners.size(); i++) {
-                        if (MainServer.listeners.get(i).nick.equals(message.substring(1)))
+                        if (MainServer.listeners.get(i).username.equals(message.substring(1)))
                             s2 = MainServer.listeners.get(i);
                     }
                     if (busy == 1 || s2 == null || s2.busy == 1) continue;
@@ -110,7 +110,7 @@ public class ServerLobbyListener extends Thread {
             System.out.println("IOException");
             prossimo = false;
         } finally {
-            System.out.println("Klient " + nick + " się rozłączył.");
+            System.out.println("Klient " + username + " się rozłączył.");
             MainServer.listeners.remove(this);
             try {
                 prossimo = false;
@@ -130,7 +130,7 @@ public class ServerLobbyListener extends Thread {
     /**
      * Termina la partita se ne è in corso una e imposta a 0 il flag di occupato
      */
-    public void zakonczMecz() {
+    public void endMatch() {
         e = null;
         busy = 0;
     }

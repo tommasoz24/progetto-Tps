@@ -15,7 +15,7 @@ public class Main {
 
     static public PanelLobby pl;
 
-    static public String name = "Giocatore";
+    static public String username = "Giocatore";
 
     static public String ip;
 
@@ -30,12 +30,12 @@ public class Main {
             if (option == JOptionPane.CANCEL_OPTION) System.exit(0);
             else {
                 ip = localhost.getText();
-                name = username.getText();
+                Main.username = username.getText();
             }
             Socket collegamento = new Socket(ip, 2020);
             clientThread = new ClientThread(collegamento);
             clientThread.start();
-            clientThread.send(name.getBytes());
+            clientThread.send(Main.username.getBytes());
             JFrame lobbyFrame = new JFrame();
             lobbyFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             lobbyFrame.setTitle("Lobby");

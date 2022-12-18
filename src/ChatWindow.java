@@ -7,34 +7,23 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 
-/** Obiekt odpowiadający za wyświetlanie czatu
- * @author Bartosz Ruta
- *
- */
+// object for display the chat room
 public class ChatWindow extends JTextPane {
 	private final Color a = Color.GREEN;
 	private final Color b = Color.BLACK;
 
-	/** Tworzy obiekt wyświetlający chat
-	 * 
-	 */
 	public ChatWindow() {
 		setBackground(Color.LIGHT_GRAY);
 		this.setPreferredSize(new Dimension(100,500));
 		this.setMaximumSize(new Dimension(200,500));
 		this.setEditable(false);
 		//this.setMargin(new Insets(5,5,5,5));
-		aktywuj();
+		activate();
 	}
-	
-	/** Wyświetla wiadomość na chat zmieniając kolor na:
-	 * Zielony, gdy wiadomość poprzedza nick klienta, u którego otwarte jest window
-	 * Czarny w przeciwnym wypadku
-	 * @param msg Treść wiadomości
-	 */
-	public void wyswietlWiadomosc(String msg) {
+
+	public void displayMessage(String msg) {
 			Color c;
-			if (msg.startsWith(Main.name+":"))
+			if (msg.startsWith(Main.username +":"))
 				c = a;
 			else
 				c = b;
@@ -48,12 +37,9 @@ public class ChatWindow extends JTextPane {
 	        replaceSelection(msg+'\n');
 	        this.setEditable(false);
 	}
-	
-	/** Ustawio tło na białe
-	 * 
-	 */
-	public void aktywuj() {
-		//aktywny = true;
+	// set the background to white
+	public void activate() {
+		//active = true;
 		setBackground(Color.WHITE);
 	}
 

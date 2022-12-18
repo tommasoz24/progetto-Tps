@@ -12,7 +12,8 @@ public class GameWindow extends JFrame {
     public ChatWindow chat;       // pannello con la chat
     public JLabel label, label2;    // etichette punteggio
 
-    public GameWindow(boolean nero) {     // creo la finestra di gioco
+    // creo la finestra di gioco
+    public GameWindow(boolean nero) {
         System.out.println("Creazione finestra di gioco");
         setTitle("Othello");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -137,22 +138,14 @@ public class GameWindow extends JFrame {
 
     }
 
-    /**
-     * Zwraca referencję do planszy aktualnej gry
-     *
-     * @return referencję do planszy aktualnej gry
-     */
+    // aggiorna il punteggio
     public PanelBoard getPanel() {
         return panel;
     }
 
-    /**
-     * Zmienia kolor ramek, wielkość czcionek etykiet pokazujących aktualny wynik, co ma informować o
-     * aktualnej turze
-     *
-     * @param czarny Informacja czy obecna tura należy do pionków czarnych
-     */
-    public void zmienKolorRamki(boolean czarny) {
+    // cambia il colore dei bordi, la dimensione dei caratteri delle etichette che mostrano il risultato corrente per informare sul risultato della ricerca
+
+    public void changeColorFrame(boolean czarny) {
         if (czarny) {
             label.setFont(new Font("Serif", Font.BOLD, 16));
             label.setBorder(new CompoundBorder( // sets two borders

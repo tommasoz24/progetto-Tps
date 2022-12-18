@@ -54,7 +54,7 @@ public class ClientThread extends Thread {
 				} else if (response[0] == 3) {
 					Main.window.getPanel().zabierzTure();
 				} else if (response[0] == 4) {
-					Main.name = line.substring(1);
+					Main.username = line.substring(1);
 				} else if (response[0] == 5) {
 					System.out.println("Richiesta di creazione di una finestra di gioco - Nero");
 					Main.window = new GameWindow(true);
@@ -91,7 +91,7 @@ public class ClientThread extends Thread {
 					for (int i = 0; i < response.length; i++)
 						a[i] = (char) response[i];
 					System.out.println(new String(a));
-					Main.window.chat.wyswietlWiadomosc(new String(a));
+					Main.window.chat.displayMessage(new String(a));
 				}
 
 			}

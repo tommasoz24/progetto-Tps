@@ -141,7 +141,7 @@ public class PanelBoard extends JPanel {
      */
     public void przydzielTure() {
         t = true;
-        Main.window.zmienKolorRamki((giocatore == 2));
+        Main.window.changeColorFrame((giocatore == 2));
     }
 
     /**
@@ -149,7 +149,7 @@ public class PanelBoard extends JPanel {
      */
     public void zabierzTure() {
         t = false;
-        Main.window.zmienKolorRamki((giocatore != 2));
+        Main.window.changeColorFrame((giocatore != 2));
     }
 
     /**
