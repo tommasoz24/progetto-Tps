@@ -44,12 +44,11 @@ public class MotoreDiGioco {
         }
 
         try {
+            // inizializzo il gioco
             out = socket.getOutputStream();
             out2 = socket2.getOutputStream();
             System.out.println("START server");
             stato = new byte[boardSize * boardSize];
-            for (int i = 0; i < 50; i++)
-                stato[i] = 1;
             stato[27] = 1;
             stato[28] = 2;
             stato[35] = 2;

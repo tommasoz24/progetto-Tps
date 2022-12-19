@@ -15,7 +15,7 @@ public class MainServer {
 
     public static void main(String[] args) {
         try {
-            ServerSocket server = new ServerSocket(8888);
+            ServerSocket server = new ServerSocket(4455);
             Thread lobby = new ServerGestioneConnessione(server);
             lobby.start();
         } catch (IOException e) {

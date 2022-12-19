@@ -38,7 +38,7 @@ public class Main {
                 ip = localhost.getText();
                 Main.username = username.getText();
             }
-            Socket collegamento = new Socket(ip, 2020);
+            Socket collegamento = new Socket(ip, 4455);
             clientThread = new ClientThread(collegamento);
             clientThread.start();
             clientThread.send(Main.username.getBytes());
